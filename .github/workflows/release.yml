@@ -1,0 +1,185 @@
+name: Build & Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+        type: string
+      release_title:
+        description: 'Release title'
+        required: false
+        default: 'Ayara v1.0.0 - Noble Quran Companion'
+        type: string
+      build_aab:
+        description: 'Also build Android App Bundle (.aab) for Google Play'
+        required: false
+        default: true
+        type: boolean
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: 'Create as draft'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build APK & Publish to GitHub Releases
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine release version and metadata
+        id: meta
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
+            TITLE="${{ inputs.release_title }}"
+            if [ -z "$TITLE" ]; then
+              TITLE="Ayara ${TAG} - Noble Quran Companion"
+            fi
+          else
+            TAG="${{ github.ref_name }}"
+            TITLE="Ayara ${TAG} - Noble Quran Companion"
+          fi
+          echo "TAG_NAME=${TAG}" >> $GITHUB_ENV
+          echo "RELEASE_TITLE=${TITLE}" >> $GITHUB_ENV
+          echo "Tag configured: ${TAG}"
+          echo "Title configured: ${TITLE}"
+
+      - name: Set up Java Development Kit (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up Gradle Cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify TypeScript & Project Configuration
+        run: |
+          npx tsc --noEmit
+          npx expo-doctor
+
+      - name: Generate Android project via Continuous Native Generation (CNG)
+        run: npx expo prebuild --platform android --clean
+
+      - name: Make Gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build Android Release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon -x lint -x test
+
+      - name: Build Android App Bundle (.aab) [Optional]
+        if: ${{ inputs.build_aab == true || github.event_name == 'push' }}
+        run: |
+          cd android
+          ./gradlew bundleRelease --no-daemon -x lint -x test || echo "AAB generation skipped"
+
+      - name: Package and rename release artifacts
+        shell: bash
+        run: |
+          mkdir -p release-assets
+
+          # Locate APK
+          APK_FILE=$(find android/app/build/outputs/apk -name "*release*.apk" | head -n 1)
+          if [ -z "$APK_FILE" ]; then
+            APK_FILE=$(find android/app/build/outputs/apk -name "*.apk" | head -n 1)
+          fi
+
+          if [ -n "$APK_FILE" ] && [ -f "$APK_FILE" ]; then
+            echo "Found APK: $APK_FILE"
+            cp "$APK_FILE" "release-assets/Ayara-${TAG_NAME}.apk"
+            cd release-assets
+            sha256sum "Ayara-${TAG_NAME}.apk" > "Ayara-${TAG_NAME}.apk.sha256"
+            cd ..
+          else
+            echo "::error::No APK file generated!"
+            exit 1
+          fi
+
+          # Locate AAB if generated
+          AAB_FILE=$(find android/app/build/outputs/bundle -name "*release*.aab" | head -n 1)
+          if [ -n "$AAB_FILE" ] && [ -f "$AAB_FILE" ]; then
+            echo "Found AAB: $AAB_FILE"
+            cp "$AAB_FILE" "release-assets/Ayara-${TAG_NAME}.aab"
+            cd release-assets
+            sha256sum "Ayara-${TAG_NAME}.aab" > "Ayara-${TAG_NAME}.aab.sha256"
+            cd ..
+          fi
+
+          echo "Generated assets:"
+          ls -la release-assets/
+
+      - name: Upload build artifacts to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ayara-${{ env.TAG_NAME }}-Android-Build
+          path: release-assets/*
+          retention-days: 30
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.RELEASE_TITLE }}
+          files: release-assets/*
+          draft: ${{ inputs.draft || false }}
+          prerelease: ${{ inputs.prerelease || false }}
+          generate_release_notes: true
+          body: |
+            ## ✨ Ayara - The Noble Quran Companion (${{ env.TAG_NAME }})
+
+            A modern, tranquil Quran companion with dynamic audio streaming, reflections, reading trackers, and a luxurious dark violet aesthetic.
+
+            ---
+
+            ### 📲 Downloads
+            | File | Description | Checksum |
+            | :--- | :--- | :--- |
+            | 📱 **[Ayara-${{ env.TAG_NAME }}.apk](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/Ayara-${{ env.TAG_NAME }}.apk)** | **Installable Android App (Direct Download)** | [SHA-256](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/Ayara-${{ env.TAG_NAME }}.apk.sha256) |
+            | 📦 **[Ayara-${{ env.TAG_NAME }}.aab](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/Ayara-${{ env.TAG_NAME }}.aab)** | Google Play App Bundle (Optional) | [SHA-256](https://github.com/${{ github.repository }}/releases/download/${{ env.TAG_NAME }}/Ayara-${{ env.TAG_NAME }}.aab.sha256) |
+
+            ---
+
+            ### 🚀 How to Install the APK on Your Android Device
+            1. **Download**: Click the **`Ayara-${{ env.TAG_NAME }}.apk`** link above directly from your Android browser.
+            2. **Open**: Tap the downloaded file from your Notifications or Downloads folder.
+            3. **Allow Installation**: If prompted with *"Install unknown apps"*, tap **Settings** and enable permission for your browser or file manager.
+            4. **Install**: Tap **Install** and open **Ayara** to start reading!
