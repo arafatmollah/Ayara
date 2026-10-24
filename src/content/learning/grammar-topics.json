@@ -1,0 +1,392 @@
+[
+  {
+    "id": "al",
+    "title": "The definite article ال",
+    "feature": "ال (the)",
+    "arabic": "^(و|ف|ب)?ال",
+    "gloss": "\\bthe\\b",
+    "summary": "Arabic makes a noun definite by adding ال (al-) to the front, like \"the\" in English.",
+    "points": [
+      "كِتَٰب means \"a book\"; ٱلْكِتَٰب means \"the book\".",
+      "In the Quran the alif of ال is often written ٱ (alif waṣla) because it is not pronounced when joined to the previous word.",
+      "Before \"sun letters\" such as ر, س, ن the ل is not pronounced: ٱلرَّحْمَٰن is read ar-raḥmān."
+    ]
+  },
+  {
+    "id": "wa",
+    "title": "و — \"and\"",
+    "feature": "وَ (and)",
+    "arabic": "^و",
+    "gloss": "^and\\b",
+    "summary": "The letter وَ (wa) means \"and\". It is attached directly to the front of the next word.",
+    "points": [
+      "وَ is never written on its own; it joins the word after it.",
+      "It is the most frequent word in the Quran.",
+      "Spot it by looking for a word that starts with وَ and whose meaning starts with \"and\"."
+    ]
+  },
+  {
+    "id": "prep",
+    "title": "Small prepositions",
+    "feature": "a preposition",
+    "arabic": "^(من|في|فى|على|علي|الى|إلى|عن)$",
+    "gloss": "^(from|in|on|upon|to|towards|about|of|over|at|into|among)\\b",
+    "summary": "Short words like مِن (from), فِى (in), عَلَىٰ (on), إِلَىٰ (to) and عَن (about) link ideas together.",
+    "points": [
+      "These words are extremely common — learning them unlocks a large share of every page.",
+      "Their exact English depends on context, so the same word may be translated slightly differently.",
+      "The noun after a preposition takes the genitive case, usually ending in -i."
+    ]
+  },
+  {
+    "id": "hu",
+    "title": "Attached pronoun ـهُ (him / his / it)",
+    "feature": "ـهُ (him/his)",
+    "arabic": "ه$",
+    "gloss": "\\b(him|his|it|its)\\b",
+    "summary": "Arabic attaches pronouns to the end of words. ـهُ (-hu) means \"him\", \"his\" or \"it\".",
+    "points": [
+      "رَبُّهُۥ = \"his Lord\" — the pronoun is joined to the noun.",
+      "After an i-sound it becomes ـهِ (-hi), as in بِهِۦ \"with it\".",
+      "The small waw or yā written after it shows the vowel is lengthened in recitation."
+    ]
+  },
+  {
+    "id": "hum",
+    "title": "Attached pronoun ـهُمْ (them / their)",
+    "feature": "ـهُم (them/their)",
+    "arabic": "هم$",
+    "gloss": "\\b(them|their|they)\\b",
+    "summary": "ـهُمْ (-hum) attached to a word means \"them\" or \"their\".",
+    "points": [
+      "قُلُوبِهِمْ = \"their hearts\".",
+      "After an i-sound it is pronounced -him: عَلَيْهِمْ \"upon them\".",
+      "It refers to a group of three or more."
+    ]
+  },
+  {
+    "id": "kum",
+    "title": "Attached pronoun ـكُمْ (you / your, plural)",
+    "feature": "ـكُم (you/your)",
+    "arabic": "كم$",
+    "gloss": "\\b(you|your|yourselves)\\b",
+    "summary": "ـكُمْ (-kum) means \"you\" or \"your\" when speaking to a group.",
+    "points": [
+      "رَبَّكُمُ = \"your Lord\" (addressing many people).",
+      "Many verses address humanity or the believers using ـكُمْ.",
+      "The singular form is ـكَ (-ka)."
+    ]
+  },
+  {
+    "id": "ka",
+    "title": "Attached pronoun ـكَ (you / your, singular)",
+    "feature": "ـكَ (you/your)",
+    "arabic": "ك$",
+    "gloss": "\\b(you|your|yourself)\\b",
+    "summary": "ـكَ (-ka) means \"you\" or \"your\" when addressing one person — often the Prophet ﷺ.",
+    "points": [
+      "رَبِّكَ = \"your Lord\".",
+      "إِلَيْكَ = \"to you\".",
+      "Compare with the plural ـكُمْ."
+    ]
+  },
+  {
+    "id": "na",
+    "title": "Attached pronoun ـنَا (us / our)",
+    "feature": "ـنَا (us/our)",
+    "arabic": "نا$",
+    "gloss": "\\b(us|our)\\b",
+    "summary": "ـنَا (-nā) attached to a noun or preposition means \"us\" or \"our\".",
+    "points": [
+      "رَبَّنَا = \"our Lord\" — it begins many supplications.",
+      "عَلَيْنَا = \"upon us\".",
+      "On verbs, -nā can also mean \"we did\" (covered in a later Juz)."
+    ]
+  },
+  {
+    "id": "ha",
+    "title": "Attached pronoun ـهَا (her / it / its)",
+    "feature": "ـهَا (her/it)",
+    "arabic": "ها$",
+    "gloss": "\\b(her|it|its|therein|them)\\b",
+    "summary": "ـهَا (-hā) refers to something grammatically feminine: \"her\", \"it\" or \"its\".",
+    "points": [
+      "فِيهَا = \"in it / therein\" — very common when describing Paradise or the earth.",
+      "Non-human plurals are often referred to with ـهَا.",
+      "So it is not only translated \"her\"."
+    ]
+  },
+  {
+    "id": "i",
+    "title": "Attached pronoun ـى (me / my)",
+    "feature": "ـى (me/my)",
+    "arabic": "(ي|ى)$",
+    "gloss": "\\b(me|my)\\b",
+    "summary": "A final yā (ـى / ـِى) on a noun or verb often means \"my\" or \"me\".",
+    "points": [
+      "رَبِّى = \"my Lord\".",
+      "On verbs it appears as ـنِى: \"me\".",
+      "Many supplications of the prophets use this form."
+    ]
+  },
+  {
+    "id": "bi",
+    "title": "بِ — with / in / by",
+    "feature": "بِ (with/by)",
+    "arabic": "^(و|ف)?ب",
+    "gloss": "^(and |so )?(with|in|by)\\b",
+    "summary": "The letter بِ (bi) is a one-letter preposition meaning \"with\", \"in\" or \"by\". It attaches to the next word.",
+    "points": [
+      "بِسْمِ = \"in (the) name\".",
+      "بِٱللَّهِ = \"in Allah\" (e.g. believing in Allah).",
+      "Not every word starting with ب contains this preposition — meaning decides."
+    ]
+  },
+  {
+    "id": "li",
+    "title": "لِ — for / to",
+    "feature": "لِ (for/to)",
+    "arabic": "^(و|ف)?ل",
+    "gloss": "^(and |so )?(for|to)\\b",
+    "summary": "The letter لِ (li) means \"for\", \"to\" or \"belongs to\". It attaches to the next word.",
+    "points": [
+      "لِلَّهِ = \"for Allah / belongs to Allah\".",
+      "With ال the alif drops: لِ + ٱلنَّاسِ → لِلنَّاسِ \"for the people\".",
+      "With pronouns it becomes لَ: لَهُمْ \"for them\"."
+    ]
+  },
+  {
+    "id": "fa",
+    "title": "فَ — so / then",
+    "feature": "فَ (so/then)",
+    "arabic": "^ف",
+    "gloss": "^(so|then|and)\\b",
+    "summary": "The letter فَ (fa) links a result or sequence: \"so\", \"then\", \"and so\".",
+    "points": [
+      "It attaches to the front of the next word, like وَ.",
+      "It often introduces the consequence of what came before.",
+      "فَلَا = \"so (do) not\"."
+    ]
+  },
+  {
+    "id": "la",
+    "title": "Negation with لَا",
+    "feature": "لَا (no/not)",
+    "arabic": "^(و|ف)?لا$",
+    "gloss": "\\b(no|not|nor|none)\\b",
+    "summary": "لَا (lā) means \"no\" or \"not\". It can negate a present-tense verb or deny something completely.",
+    "points": [
+      "لَا رَيْبَ = \"no doubt\".",
+      "Before a verb it means \"does not\": لَا يَعْلَمُونَ \"they do not know\".",
+      "وَلَا = \"and not / nor\"."
+    ]
+  },
+  {
+    "id": "inna",
+    "title": "إِنَّ — indeed",
+    "feature": "إِنَّ (indeed)",
+    "arabic": "^(و|ف)?(ان|إن)",
+    "gloss": "^(and |so )?(indeed|verily|surely|certainly)",
+    "summary": "إِنَّ (inna) adds emphasis to a sentence: \"indeed\" or \"truly\".",
+    "points": [
+      "It often takes a pronoun: إِنَّهُۥ \"indeed, he/it\".",
+      "The noun after إِنَّ takes the accusative case (-a).",
+      "Translators render it as \"indeed\", \"verily\" or \"surely\"."
+    ]
+  },
+  {
+    "id": "rel",
+    "title": "Relative pronouns — who / which",
+    "feature": "a relative pronoun",
+    "arabic": "^(و|ف)?(الذين|الذي|الذى|التي|التى)$",
+    "gloss": "\\b(who|whom|which|those|that|one)\\b",
+    "summary": "ٱلَّذِى (who/which, masculine singular), ٱلَّتِى (feminine) and ٱلَّذِينَ (plural) connect a description to a noun.",
+    "points": [
+      "ٱلَّذِينَ ءَامَنُوا۟ = \"those who believe\" — one of the most repeated phrases.",
+      "They are always definite and begin with ال.",
+      "Notice the doubled lām (لّ)."
+    ]
+  },
+  {
+    "id": "ya",
+    "title": "Calling someone: يَـٰٓأَيُّهَا",
+    "feature": "يَا (O ...)",
+    "arabic": "^(و)?يا",
+    "gloss": "^(and )?o\\b",
+    "summary": "يَا (yā) is used to call or address someone: \"O ...\". With a definite noun it becomes يَـٰٓأَيُّهَا.",
+    "points": [
+      "يَـٰٓأَيُّهَا ٱلنَّاسُ = \"O mankind\".",
+      "يَـٰقَوْمِ = \"O my people\" — frequent in the stories of the prophets.",
+      "Look for the long ā written over the yā."
+    ]
+  },
+  {
+    "id": "ta",
+    "title": "Feminine ending ة",
+    "feature": "ة (tā marbūṭa)",
+    "arabic": "ة$",
+    "gloss": ".",
+    "summary": "Many feminine nouns end in ة (tā marbūṭa), pronounced -ah when pausing.",
+    "points": [
+      "رَحْمَة = \"mercy\"; جَنَّة = \"garden / Paradise\".",
+      "When joined to the next word it is pronounced -t.",
+      "Words like ٱلصَّلَوٰة keep an old spelling with و but are read aṣ-ṣalāh."
+    ]
+  },
+  {
+    "id": "una",
+    "title": "Sound masculine plural ـُونَ / ـِينَ",
+    "feature": "ـون / ـين (plural)",
+    "arabic": "(ون|ين)$",
+    "gloss": "[a-z](ers|ors|ents|ants|ites|ous)\\b",
+    "summary": "Many plurals referring to people end in ـُونَ (-ūna) or ـِينَ (-īna).",
+    "points": [
+      "مُؤْمِن \"a believer\" → ٱلْمُؤْمِنُونَ / ٱلْمُؤْمِنِينَ \"the believers\".",
+      "-ūna is used for the subject; -īna after prepositions or as an object.",
+      "The meaning is the same — only the grammatical case changes."
+    ]
+  },
+  {
+    "id": "dual",
+    "title": "The dual — exactly two",
+    "feature": "ـان / ـين (two)",
+    "arabic": "(ان|ين|ا)$",
+    "gloss": "\\b(two|both)\\b",
+    "summary": "Arabic has a special form for exactly two of something, ending in ـَانِ (-āni) or ـَيْنِ (-ayni).",
+    "points": [
+      "جَنَّتَانِ = \"two gardens\".",
+      "English needs the word \"two\"; Arabic changes the ending instead.",
+      "Surah ar-Raḥmān uses many duals."
+    ]
+  },
+  {
+    "id": "uu",
+    "title": "Past tense: they did (ـُوا)",
+    "feature": "ـُوا (they did)",
+    "arabic": "وا$",
+    "gloss": "^(and |so |then )?they (w+ed|were|used to|said|took|made|came|did|went|saw|knew|gave|had|fought|turned|ate|sought|left|fled)\b",
+    "summary": "A past-tense verb ending in ـُوا۟ (-ū) means \"they did\".",
+    "points": [
+      "ءَامَنُوا۟ = \"they believed\"; كَفَرُوا۟ = \"they disbelieved\".",
+      "The final alif is written but not pronounced.",
+      "The same ending appears on commands to a group: قُولُوٓا۟ \"say!\"."
+    ]
+  },
+  {
+    "id": "nafal",
+    "title": "Past tense: we did (ـنَا)",
+    "feature": "ـنَا (we did)",
+    "arabic": "نا$",
+    "gloss": "^(and |so |then )?we\\b",
+    "summary": "On a past-tense verb, ـنَا (-nā) means \"we did\". Allah often speaks of Himself with the majestic \"We\".",
+    "points": [
+      "أَنزَلْنَا = \"We sent down\".",
+      "خَلَقْنَا = \"We created\".",
+      "The \"royal We\" expresses majesty, not number."
+    ]
+  },
+  {
+    "id": "tum",
+    "title": "Past tense: you did (ـتُمْ)",
+    "feature": "ـتُم (you did)",
+    "arabic": "^(?!ان)(و|ف)?S+تم$",
+    "gloss": "^(and |so |then |if )?you\\b",
+    "summary": "A past-tense verb ending in ـتُمْ (-tum) means \"you (all) did\".",
+    "points": [
+      "كُنتُمْ = \"you were\".",
+      "Compare with ـتَ (you did, singular).",
+      "It often appears in reminders addressed to a community."
+    ]
+  },
+  {
+    "id": "ya_pres",
+    "title": "Present tense with يَـ",
+    "feature": "يَـ (he/they do)",
+    "arabic": "^(و|ف)?ي",
+    "gloss": "^(and |so |then )?(they|he|it) (?!was|were|did|used|had)w+",
+    "summary": "Present-tense verbs about \"he\" or \"they\" begin with يَـ / يُـ.",
+    "points": [
+      "يَعْلَمُ = \"he knows\"; يَعْلَمُونَ = \"they know\".",
+      "Adding ـونَ at the end makes it plural.",
+      "The present tense also describes habits and the future."
+    ]
+  },
+  {
+    "id": "kana",
+    "title": "كَانَ — was / used to",
+    "feature": "كَانَ (was)",
+    "arabic": "^(و|ف)?كان",
+    "gloss": "\\b(was|were|is|are|be|used to)\\b",
+    "summary": "كَانَ (kāna) means \"was\". When describing Allah it often expresses a permanent quality: \"Allah is ever Forgiving\".",
+    "points": [
+      "كَانُوا۟ = \"they were / they used to\".",
+      "Translators often render it \"is\" for Allah's attributes.",
+      "Its predicate takes the accusative case (-an)."
+    ]
+  },
+  {
+    "id": "qala",
+    "title": "قَالَ — said / say",
+    "feature": "قَالَ (said)",
+    "arabic": "^(و|ف)?(قال|قل|يقول|نقول|تقول)",
+    "gloss": "\\b(said|say|says|saying)\\b",
+    "summary": "قَالَ (qāla) \"he said\" and the command قُلْ \"say!\" introduce speech throughout the Quran.",
+    "points": [
+      "قَالُوا۟ = \"they said\".",
+      "قُلْ is addressed to the Prophet ﷺ, instructing him what to say.",
+      "Many dialogues of the prophets begin with قَالَ."
+    ]
+  },
+  {
+    "id": "prep_pron",
+    "title": "Prepositions with pronouns",
+    "feature": "preposition + pronoun",
+    "arabic": "^(و|ف)?(علي|الي|إلي|عن|من|في|فى|ل|ب)\\S*(هم|كم|ه|ها|نا|ك)$",
+    "gloss": "\\b(upon|to|on|from|in|with|for|about|against) (them|you|him|her|it|us)\\b",
+    "summary": "Prepositions combine with attached pronouns into one word: عَلَيْهِمْ \"upon them\", إِلَيْكَ \"to you\".",
+    "points": [
+      "عَلَىٰ + هُمْ → عَلَيْهِمْ.",
+      "مِن + هُ → مِنْهُ \"from him / from it\".",
+      "Spot the preposition at the start and the pronoun at the end."
+    ]
+  },
+  {
+    "id": "lam",
+    "title": "Negation with لَمْ (did not)",
+    "feature": "لَمْ (did not)",
+    "arabic": "^(و|ف|ا|أ)?لم$",
+    "gloss": "\\b(not|never)\\b",
+    "summary": "لَمْ (lam) + present-tense verb means \"did not\" — it negates the past.",
+    "points": [
+      "لَمْ يَلِدْ = \"He neither begets\" (Surah al-Ikhlāṣ).",
+      "The verb after لَمْ loses its final vowel (jussive).",
+      "أَلَمْ = \"did ... not?\" — a rhetorical question."
+    ]
+  },
+  {
+    "id": "lan",
+    "title": "Negation with لَن (will never)",
+    "feature": "لَن (will not)",
+    "arabic": "^(و|ف)?لن$",
+    "gloss": "\\b(never|not|will not)\\b",
+    "summary": "لَن (lan) + present-tense verb means \"will not / will never\" — it negates the future.",
+    "points": [
+      "وَلَن = \"and never\".",
+      "The verb after لَن takes the subjunctive ending (-a).",
+      "Compare لَا (does not), لَمْ (did not), لَن (will not)."
+    ]
+  },
+  {
+    "id": "qad",
+    "title": "قَدْ — certainly / indeed",
+    "feature": "قَدْ (certainly)",
+    "arabic": "^(و|ف|ل)?قد$",
+    "gloss": "\\b(certainly|surely|indeed|verily|already)\\b",
+    "summary": "قَدْ (qad) before a past-tense verb emphasises that something has truly happened.",
+    "points": [
+      "قَدْ أَفْلَحَ ٱلْمُؤْمِنُونَ = \"Certainly will the believers have succeeded\".",
+      "وَلَقَدْ adds even more emphasis.",
+      "Before a present-tense verb it can mean \"sometimes\" or \"surely\"."
+    ]
+  }
+]

@@ -1,0 +1,1567 @@
+{
+ "bismillah": "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
+ "surahs": [
+  {
+   "n": 1,
+   "ar": "ٱلْفَاتِحَةِ",
+   "en": "Al-Faatiha",
+   "meaning": "The Opening",
+   "ayahs": 7,
+   "type": "Meccan",
+   "firstGlobal": 1,
+   "bismillah": false
+  },
+  {
+   "n": 2,
+   "ar": "البَقَرَةِ",
+   "en": "Al-Baqara",
+   "meaning": "The Cow",
+   "ayahs": 286,
+   "type": "Medinan",
+   "firstGlobal": 8,
+   "bismillah": true
+  },
+  {
+   "n": 3,
+   "ar": "آلِ عِمۡرَانَ",
+   "en": "Aal-i-Imraan",
+   "meaning": "The Family of Imraan",
+   "ayahs": 200,
+   "type": "Medinan",
+   "firstGlobal": 294,
+   "bismillah": true
+  },
+  {
+   "n": 4,
+   "ar": "النِّسَاءِ",
+   "en": "An-Nisaa",
+   "meaning": "The Women",
+   "ayahs": 176,
+   "type": "Medinan",
+   "firstGlobal": 494,
+   "bismillah": true
+  },
+  {
+   "n": 5,
+   "ar": "المَائـِدَةِ",
+   "en": "Al-Maaida",
+   "meaning": "The Table",
+   "ayahs": 120,
+   "type": "Medinan",
+   "firstGlobal": 670,
+   "bismillah": true
+  },
+  {
+   "n": 6,
+   "ar": "الأَنۡعَامِ",
+   "en": "Al-An'aam",
+   "meaning": "The Cattle",
+   "ayahs": 165,
+   "type": "Meccan",
+   "firstGlobal": 790,
+   "bismillah": true
+  },
+  {
+   "n": 7,
+   "ar": "الأَعۡرَافِ",
+   "en": "Al-A'raaf",
+   "meaning": "The Heights",
+   "ayahs": 206,
+   "type": "Meccan",
+   "firstGlobal": 955,
+   "bismillah": true
+  },
+  {
+   "n": 8,
+   "ar": "الأَنفَالِ",
+   "en": "Al-Anfaal",
+   "meaning": "The Spoils of War",
+   "ayahs": 75,
+   "type": "Medinan",
+   "firstGlobal": 1161,
+   "bismillah": true
+  },
+  {
+   "n": 9,
+   "ar": "التَّوۡبَةِ",
+   "en": "At-Tawba",
+   "meaning": "The Repentance",
+   "ayahs": 129,
+   "type": "Medinan",
+   "firstGlobal": 1236,
+   "bismillah": false
+  },
+  {
+   "n": 10,
+   "ar": "يُونُسَ",
+   "en": "Yunus",
+   "meaning": "Jonas",
+   "ayahs": 109,
+   "type": "Meccan",
+   "firstGlobal": 1365,
+   "bismillah": true
+  },
+  {
+   "n": 11,
+   "ar": "هُودٍ",
+   "en": "Hud",
+   "meaning": "Hud",
+   "ayahs": 123,
+   "type": "Meccan",
+   "firstGlobal": 1474,
+   "bismillah": true
+  },
+  {
+   "n": 12,
+   "ar": "يُوسُفَ",
+   "en": "Yusuf",
+   "meaning": "Joseph",
+   "ayahs": 111,
+   "type": "Meccan",
+   "firstGlobal": 1597,
+   "bismillah": true
+  },
+  {
+   "n": 13,
+   "ar": "الرَّعۡدِ",
+   "en": "Ar-Ra'd",
+   "meaning": "The Thunder",
+   "ayahs": 43,
+   "type": "Medinan",
+   "firstGlobal": 1708,
+   "bismillah": true
+  },
+  {
+   "n": 14,
+   "ar": "إِبۡرَاهِيمَ",
+   "en": "Ibrahim",
+   "meaning": "Abraham",
+   "ayahs": 52,
+   "type": "Meccan",
+   "firstGlobal": 1751,
+   "bismillah": true
+  },
+  {
+   "n": 15,
+   "ar": "الحِجۡرِ",
+   "en": "Al-Hijr",
+   "meaning": "The Rock",
+   "ayahs": 99,
+   "type": "Meccan",
+   "firstGlobal": 1803,
+   "bismillah": true
+  },
+  {
+   "n": 16,
+   "ar": "النَّحۡلِ",
+   "en": "An-Nahl",
+   "meaning": "The Bee",
+   "ayahs": 128,
+   "type": "Meccan",
+   "firstGlobal": 1902,
+   "bismillah": true
+  },
+  {
+   "n": 17,
+   "ar": "الإِسۡرَاءِ",
+   "en": "Al-Israa",
+   "meaning": "The Night Journey",
+   "ayahs": 111,
+   "type": "Meccan",
+   "firstGlobal": 2030,
+   "bismillah": true
+  },
+  {
+   "n": 18,
+   "ar": "الكَهۡفِ",
+   "en": "Al-Kahf",
+   "meaning": "The Cave",
+   "ayahs": 110,
+   "type": "Meccan",
+   "firstGlobal": 2141,
+   "bismillah": true
+  },
+  {
+   "n": 19,
+   "ar": "مَرۡيَمَ",
+   "en": "Maryam",
+   "meaning": "Mary",
+   "ayahs": 98,
+   "type": "Meccan",
+   "firstGlobal": 2251,
+   "bismillah": true
+  },
+  {
+   "n": 20,
+   "ar": "طه",
+   "en": "Taa-Haa",
+   "meaning": "Taa-Haa",
+   "ayahs": 135,
+   "type": "Meccan",
+   "firstGlobal": 2349,
+   "bismillah": true
+  },
+  {
+   "n": 21,
+   "ar": "الأَنبِيَاءِ",
+   "en": "Al-Anbiyaa",
+   "meaning": "The Prophets",
+   "ayahs": 112,
+   "type": "Meccan",
+   "firstGlobal": 2484,
+   "bismillah": true
+  },
+  {
+   "n": 22,
+   "ar": "الحَجِّ",
+   "en": "Al-Hajj",
+   "meaning": "The Pilgrimage",
+   "ayahs": 78,
+   "type": "Medinan",
+   "firstGlobal": 2596,
+   "bismillah": true
+  },
+  {
+   "n": 23,
+   "ar": "المُؤۡمِنُونَ",
+   "en": "Al-Muminoon",
+   "meaning": "The Believers",
+   "ayahs": 118,
+   "type": "Meccan",
+   "firstGlobal": 2674,
+   "bismillah": true
+  },
+  {
+   "n": 24,
+   "ar": "النُّورِ",
+   "en": "An-Noor",
+   "meaning": "The Light",
+   "ayahs": 64,
+   "type": "Medinan",
+   "firstGlobal": 2792,
+   "bismillah": true
+  },
+  {
+   "n": 25,
+   "ar": "الفُرۡقَانِ",
+   "en": "Al-Furqaan",
+   "meaning": "The Criterion",
+   "ayahs": 77,
+   "type": "Meccan",
+   "firstGlobal": 2856,
+   "bismillah": true
+  },
+  {
+   "n": 26,
+   "ar": "الشُّعَرَاءِ",
+   "en": "Ash-Shu'araa",
+   "meaning": "The Poets",
+   "ayahs": 227,
+   "type": "Meccan",
+   "firstGlobal": 2933,
+   "bismillah": true
+  },
+  {
+   "n": 27,
+   "ar": "النَّمۡلِ",
+   "en": "An-Naml",
+   "meaning": "The Ant",
+   "ayahs": 93,
+   "type": "Meccan",
+   "firstGlobal": 3160,
+   "bismillah": true
+  },
+  {
+   "n": 28,
+   "ar": "القَصَصِ",
+   "en": "Al-Qasas",
+   "meaning": "The Stories",
+   "ayahs": 88,
+   "type": "Meccan",
+   "firstGlobal": 3253,
+   "bismillah": true
+  },
+  {
+   "n": 29,
+   "ar": "العَنكَبُوتِ",
+   "en": "Al-Ankaboot",
+   "meaning": "The Spider",
+   "ayahs": 69,
+   "type": "Meccan",
+   "firstGlobal": 3341,
+   "bismillah": true
+  },
+  {
+   "n": 30,
+   "ar": "الرُّومِ",
+   "en": "Ar-Room",
+   "meaning": "The Romans",
+   "ayahs": 60,
+   "type": "Meccan",
+   "firstGlobal": 3410,
+   "bismillah": true
+  },
+  {
+   "n": 31,
+   "ar": "لُقۡمَانَ",
+   "en": "Luqman",
+   "meaning": "Luqman",
+   "ayahs": 34,
+   "type": "Meccan",
+   "firstGlobal": 3470,
+   "bismillah": true
+  },
+  {
+   "n": 32,
+   "ar": "السَّجۡدَةِ",
+   "en": "As-Sajda",
+   "meaning": "The Prostration",
+   "ayahs": 30,
+   "type": "Meccan",
+   "firstGlobal": 3504,
+   "bismillah": true
+  },
+  {
+   "n": 33,
+   "ar": "الأَحۡزَابِ",
+   "en": "Al-Ahzaab",
+   "meaning": "The Clans",
+   "ayahs": 73,
+   "type": "Medinan",
+   "firstGlobal": 3534,
+   "bismillah": true
+  },
+  {
+   "n": 34,
+   "ar": "سَبَإٍ",
+   "en": "Saba",
+   "meaning": "Sheba",
+   "ayahs": 54,
+   "type": "Meccan",
+   "firstGlobal": 3607,
+   "bismillah": true
+  },
+  {
+   "n": 35,
+   "ar": "فَاطِرٍ",
+   "en": "Faatir",
+   "meaning": "The Originator",
+   "ayahs": 45,
+   "type": "Meccan",
+   "firstGlobal": 3661,
+   "bismillah": true
+  },
+  {
+   "n": 36,
+   "ar": "يسٓ",
+   "en": "Yaseen",
+   "meaning": "Yaseen",
+   "ayahs": 83,
+   "type": "Meccan",
+   "firstGlobal": 3706,
+   "bismillah": true
+  },
+  {
+   "n": 37,
+   "ar": "الصَّافَّاتِ",
+   "en": "As-Saaffaat",
+   "meaning": "Those drawn up in Ranks",
+   "ayahs": 182,
+   "type": "Meccan",
+   "firstGlobal": 3789,
+   "bismillah": true
+  },
+  {
+   "n": 38,
+   "ar": "صٓ",
+   "en": "Saad",
+   "meaning": "The letter Saad",
+   "ayahs": 88,
+   "type": "Meccan",
+   "firstGlobal": 3971,
+   "bismillah": true
+  },
+  {
+   "n": 39,
+   "ar": "الزُّمَرِ",
+   "en": "Az-Zumar",
+   "meaning": "The Groups",
+   "ayahs": 75,
+   "type": "Meccan",
+   "firstGlobal": 4059,
+   "bismillah": true
+  },
+  {
+   "n": 40,
+   "ar": "غَافِرٍ",
+   "en": "Ghafir",
+   "meaning": "The Forgiver",
+   "ayahs": 85,
+   "type": "Meccan",
+   "firstGlobal": 4134,
+   "bismillah": true
+  },
+  {
+   "n": 41,
+   "ar": "فُصِّلَتۡ",
+   "en": "Fussilat",
+   "meaning": "Explained in detail",
+   "ayahs": 54,
+   "type": "Meccan",
+   "firstGlobal": 4219,
+   "bismillah": true
+  },
+  {
+   "n": 42,
+   "ar": "الشُّورَىٰ",
+   "en": "Ash-Shura",
+   "meaning": "Consultation",
+   "ayahs": 53,
+   "type": "Meccan",
+   "firstGlobal": 4273,
+   "bismillah": true
+  },
+  {
+   "n": 43,
+   "ar": "الزُّخۡرُفِ",
+   "en": "Az-Zukhruf",
+   "meaning": "Ornaments of gold",
+   "ayahs": 89,
+   "type": "Meccan",
+   "firstGlobal": 4326,
+   "bismillah": true
+  },
+  {
+   "n": 44,
+   "ar": "الدُّخَانِ",
+   "en": "Ad-Dukhaan",
+   "meaning": "The Smoke",
+   "ayahs": 59,
+   "type": "Meccan",
+   "firstGlobal": 4415,
+   "bismillah": true
+  },
+  {
+   "n": 45,
+   "ar": "الجَاثِيَةِ",
+   "en": "Al-Jaathiya",
+   "meaning": "Crouching",
+   "ayahs": 37,
+   "type": "Meccan",
+   "firstGlobal": 4474,
+   "bismillah": true
+  },
+  {
+   "n": 46,
+   "ar": "الأَحۡقَافِ",
+   "en": "Al-Ahqaf",
+   "meaning": "The Dunes",
+   "ayahs": 35,
+   "type": "Meccan",
+   "firstGlobal": 4511,
+   "bismillah": true
+  },
+  {
+   "n": 47,
+   "ar": "مُحَمَّدٍ",
+   "en": "Muhammad",
+   "meaning": "Muhammad",
+   "ayahs": 38,
+   "type": "Medinan",
+   "firstGlobal": 4546,
+   "bismillah": true
+  },
+  {
+   "n": 48,
+   "ar": "الفَتۡحِ",
+   "en": "Al-Fath",
+   "meaning": "The Victory",
+   "ayahs": 29,
+   "type": "Medinan",
+   "firstGlobal": 4584,
+   "bismillah": true
+  },
+  {
+   "n": 49,
+   "ar": "الحُجُرَاتِ",
+   "en": "Al-Hujuraat",
+   "meaning": "The Inner Apartments",
+   "ayahs": 18,
+   "type": "Medinan",
+   "firstGlobal": 4613,
+   "bismillah": true
+  },
+  {
+   "n": 50,
+   "ar": "قٓ",
+   "en": "Qaaf",
+   "meaning": "The letter Qaaf",
+   "ayahs": 45,
+   "type": "Meccan",
+   "firstGlobal": 4631,
+   "bismillah": true
+  },
+  {
+   "n": 51,
+   "ar": "الذَّارِيَاتِ",
+   "en": "Adh-Dhaariyat",
+   "meaning": "The Winnowing Winds",
+   "ayahs": 60,
+   "type": "Meccan",
+   "firstGlobal": 4676,
+   "bismillah": true
+  },
+  {
+   "n": 52,
+   "ar": "الطُّورِ",
+   "en": "At-Tur",
+   "meaning": "The Mount",
+   "ayahs": 49,
+   "type": "Meccan",
+   "firstGlobal": 4736,
+   "bismillah": true
+  },
+  {
+   "n": 53,
+   "ar": "النَّجۡمِ",
+   "en": "An-Najm",
+   "meaning": "The Star",
+   "ayahs": 62,
+   "type": "Meccan",
+   "firstGlobal": 4785,
+   "bismillah": true
+  },
+  {
+   "n": 54,
+   "ar": "القَمَرِ",
+   "en": "Al-Qamar",
+   "meaning": "The Moon",
+   "ayahs": 55,
+   "type": "Meccan",
+   "firstGlobal": 4847,
+   "bismillah": true
+  },
+  {
+   "n": 55,
+   "ar": "الرَّحۡمَٰن",
+   "en": "Ar-Rahmaan",
+   "meaning": "The Beneficent",
+   "ayahs": 78,
+   "type": "Medinan",
+   "firstGlobal": 4902,
+   "bismillah": true
+  },
+  {
+   "n": 56,
+   "ar": "الوَاقِعَةِ",
+   "en": "Al-Waaqia",
+   "meaning": "The Inevitable",
+   "ayahs": 96,
+   "type": "Meccan",
+   "firstGlobal": 4980,
+   "bismillah": true
+  },
+  {
+   "n": 57,
+   "ar": "الحَدِيدِ",
+   "en": "Al-Hadid",
+   "meaning": "The Iron",
+   "ayahs": 29,
+   "type": "Medinan",
+   "firstGlobal": 5076,
+   "bismillah": true
+  },
+  {
+   "n": 58,
+   "ar": "المُجَادلَةِ",
+   "en": "Al-Mujaadila",
+   "meaning": "The Pleading Woman",
+   "ayahs": 22,
+   "type": "Medinan",
+   "firstGlobal": 5105,
+   "bismillah": true
+  },
+  {
+   "n": 59,
+   "ar": "الحَشۡرِ",
+   "en": "Al-Hashr",
+   "meaning": "The Exile",
+   "ayahs": 24,
+   "type": "Medinan",
+   "firstGlobal": 5127,
+   "bismillah": true
+  },
+  {
+   "n": 60,
+   "ar": "المُمۡتَحنَةِ",
+   "en": "Al-Mumtahana",
+   "meaning": "She that is to be examined",
+   "ayahs": 13,
+   "type": "Medinan",
+   "firstGlobal": 5151,
+   "bismillah": true
+  },
+  {
+   "n": 61,
+   "ar": "الصَّفِّ",
+   "en": "As-Saff",
+   "meaning": "The Ranks",
+   "ayahs": 14,
+   "type": "Medinan",
+   "firstGlobal": 5164,
+   "bismillah": true
+  },
+  {
+   "n": 62,
+   "ar": "الجُمُعَةِ",
+   "en": "Al-Jumu'a",
+   "meaning": "Friday",
+   "ayahs": 11,
+   "type": "Medinan",
+   "firstGlobal": 5178,
+   "bismillah": true
+  },
+  {
+   "n": 63,
+   "ar": "المُنَافِقُونَ",
+   "en": "Al-Munaafiqoon",
+   "meaning": "The Hypocrites",
+   "ayahs": 11,
+   "type": "Medinan",
+   "firstGlobal": 5189,
+   "bismillah": true
+  },
+  {
+   "n": 64,
+   "ar": "التَّغَابُنِ",
+   "en": "At-Taghaabun",
+   "meaning": "Mutual Disillusion",
+   "ayahs": 18,
+   "type": "Medinan",
+   "firstGlobal": 5200,
+   "bismillah": true
+  },
+  {
+   "n": 65,
+   "ar": "الطَّلَاقِ",
+   "en": "At-Talaaq",
+   "meaning": "Divorce",
+   "ayahs": 12,
+   "type": "Medinan",
+   "firstGlobal": 5218,
+   "bismillah": true
+  },
+  {
+   "n": 66,
+   "ar": "التَّحۡرِيمِ",
+   "en": "At-Tahrim",
+   "meaning": "The Prohibition",
+   "ayahs": 12,
+   "type": "Medinan",
+   "firstGlobal": 5230,
+   "bismillah": true
+  },
+  {
+   "n": 67,
+   "ar": "المُلۡكِ",
+   "en": "Al-Mulk",
+   "meaning": "The Sovereignty",
+   "ayahs": 30,
+   "type": "Meccan",
+   "firstGlobal": 5242,
+   "bismillah": true
+  },
+  {
+   "n": 68,
+   "ar": "القَلَمِ",
+   "en": "Al-Qalam",
+   "meaning": "The Pen",
+   "ayahs": 52,
+   "type": "Meccan",
+   "firstGlobal": 5272,
+   "bismillah": true
+  },
+  {
+   "n": 69,
+   "ar": "الحَاقَّةِ",
+   "en": "Al-Haaqqa",
+   "meaning": "The Reality",
+   "ayahs": 52,
+   "type": "Meccan",
+   "firstGlobal": 5324,
+   "bismillah": true
+  },
+  {
+   "n": 70,
+   "ar": "المَعَارِجِ",
+   "en": "Al-Ma'aarij",
+   "meaning": "The Ascending Stairways",
+   "ayahs": 44,
+   "type": "Meccan",
+   "firstGlobal": 5376,
+   "bismillah": true
+  },
+  {
+   "n": 71,
+   "ar": "نُوحٍ",
+   "en": "Nooh",
+   "meaning": "Noah",
+   "ayahs": 28,
+   "type": "Meccan",
+   "firstGlobal": 5420,
+   "bismillah": true
+  },
+  {
+   "n": 72,
+   "ar": "الجِنِّ",
+   "en": "Al-Jinn",
+   "meaning": "The Jinn",
+   "ayahs": 28,
+   "type": "Meccan",
+   "firstGlobal": 5448,
+   "bismillah": true
+  },
+  {
+   "n": 73,
+   "ar": "المُزَّمِّلِ",
+   "en": "Al-Muzzammil",
+   "meaning": "The Enshrouded One",
+   "ayahs": 20,
+   "type": "Meccan",
+   "firstGlobal": 5476,
+   "bismillah": true
+  },
+  {
+   "n": 74,
+   "ar": "المُدَّثِّرِ",
+   "en": "Al-Muddaththir",
+   "meaning": "The Cloaked One",
+   "ayahs": 56,
+   "type": "Meccan",
+   "firstGlobal": 5496,
+   "bismillah": true
+  },
+  {
+   "n": 75,
+   "ar": "القِيَامَةِ",
+   "en": "Al-Qiyaama",
+   "meaning": "The Resurrection",
+   "ayahs": 40,
+   "type": "Meccan",
+   "firstGlobal": 5552,
+   "bismillah": true
+  },
+  {
+   "n": 76,
+   "ar": "الإِنسَانِ",
+   "en": "Al-Insaan",
+   "meaning": "Man",
+   "ayahs": 31,
+   "type": "Medinan",
+   "firstGlobal": 5592,
+   "bismillah": true
+  },
+  {
+   "n": 77,
+   "ar": "المُرۡسَلَاتِ",
+   "en": "Al-Mursalaat",
+   "meaning": "The Emissaries",
+   "ayahs": 50,
+   "type": "Meccan",
+   "firstGlobal": 5623,
+   "bismillah": true
+  },
+  {
+   "n": 78,
+   "ar": "النَّبَإِ",
+   "en": "An-Naba",
+   "meaning": "The Announcement",
+   "ayahs": 40,
+   "type": "Meccan",
+   "firstGlobal": 5673,
+   "bismillah": true
+  },
+  {
+   "n": 79,
+   "ar": "النَّازِعَاتِ",
+   "en": "An-Naazi'aat",
+   "meaning": "Those who drag forth",
+   "ayahs": 46,
+   "type": "Meccan",
+   "firstGlobal": 5713,
+   "bismillah": true
+  },
+  {
+   "n": 80,
+   "ar": "عَبَسَ",
+   "en": "Abasa",
+   "meaning": "He frowned",
+   "ayahs": 42,
+   "type": "Meccan",
+   "firstGlobal": 5759,
+   "bismillah": true
+  },
+  {
+   "n": 81,
+   "ar": "التَّكۡوِيرِ",
+   "en": "At-Takwir",
+   "meaning": "The Overthrowing",
+   "ayahs": 29,
+   "type": "Meccan",
+   "firstGlobal": 5801,
+   "bismillah": true
+  },
+  {
+   "n": 82,
+   "ar": "الانفِطَارِ",
+   "en": "Al-Infitaar",
+   "meaning": "The Cleaving",
+   "ayahs": 19,
+   "type": "Meccan",
+   "firstGlobal": 5830,
+   "bismillah": true
+  },
+  {
+   "n": 83,
+   "ar": "المُطَفِّفِينَ",
+   "en": "Al-Mutaffifin",
+   "meaning": "Defrauding",
+   "ayahs": 36,
+   "type": "Meccan",
+   "firstGlobal": 5849,
+   "bismillah": true
+  },
+  {
+   "n": 84,
+   "ar": "الانشِقَاقِ",
+   "en": "Al-Inshiqaaq",
+   "meaning": "The Splitting Open",
+   "ayahs": 25,
+   "type": "Meccan",
+   "firstGlobal": 5885,
+   "bismillah": true
+  },
+  {
+   "n": 85,
+   "ar": "البُرُوجِ",
+   "en": "Al-Burooj",
+   "meaning": "The Constellations",
+   "ayahs": 22,
+   "type": "Meccan",
+   "firstGlobal": 5910,
+   "bismillah": true
+  },
+  {
+   "n": 86,
+   "ar": "الطَّارِقِ",
+   "en": "At-Taariq",
+   "meaning": "The Morning Star",
+   "ayahs": 17,
+   "type": "Meccan",
+   "firstGlobal": 5932,
+   "bismillah": true
+  },
+  {
+   "n": 87,
+   "ar": "الأَعۡلَىٰ",
+   "en": "Al-A'laa",
+   "meaning": "The Most High",
+   "ayahs": 19,
+   "type": "Meccan",
+   "firstGlobal": 5949,
+   "bismillah": true
+  },
+  {
+   "n": 88,
+   "ar": "الغَاشِيَةِ",
+   "en": "Al-Ghaashiya",
+   "meaning": "The Overwhelming",
+   "ayahs": 26,
+   "type": "Meccan",
+   "firstGlobal": 5968,
+   "bismillah": true
+  },
+  {
+   "n": 89,
+   "ar": "الفَجۡرِ",
+   "en": "Al-Fajr",
+   "meaning": "The Dawn",
+   "ayahs": 30,
+   "type": "Meccan",
+   "firstGlobal": 5994,
+   "bismillah": true
+  },
+  {
+   "n": 90,
+   "ar": "البَلَدِ",
+   "en": "Al-Balad",
+   "meaning": "The City",
+   "ayahs": 20,
+   "type": "Meccan",
+   "firstGlobal": 6024,
+   "bismillah": true
+  },
+  {
+   "n": 91,
+   "ar": "الشَّمۡسِ",
+   "en": "Ash-Shams",
+   "meaning": "The Sun",
+   "ayahs": 15,
+   "type": "Meccan",
+   "firstGlobal": 6044,
+   "bismillah": true
+  },
+  {
+   "n": 92,
+   "ar": "اللَّيۡلِ",
+   "en": "Al-Lail",
+   "meaning": "The Night",
+   "ayahs": 21,
+   "type": "Meccan",
+   "firstGlobal": 6059,
+   "bismillah": true
+  },
+  {
+   "n": 93,
+   "ar": "الضُّحَىٰ",
+   "en": "Ad-Dhuhaa",
+   "meaning": "The Morning Hours",
+   "ayahs": 11,
+   "type": "Meccan",
+   "firstGlobal": 6080,
+   "bismillah": true
+  },
+  {
+   "n": 94,
+   "ar": "الشَّرۡحِ",
+   "en": "Ash-Sharh",
+   "meaning": "The Consolation",
+   "ayahs": 8,
+   "type": "Meccan",
+   "firstGlobal": 6091,
+   "bismillah": true
+  },
+  {
+   "n": 95,
+   "ar": "التِّينِ",
+   "en": "At-Tin",
+   "meaning": "The Fig",
+   "ayahs": 8,
+   "type": "Meccan",
+   "firstGlobal": 6099,
+   "bismillah": true
+  },
+  {
+   "n": 96,
+   "ar": "العَلَقِ",
+   "en": "Al-Alaq",
+   "meaning": "The Clot",
+   "ayahs": 19,
+   "type": "Meccan",
+   "firstGlobal": 6107,
+   "bismillah": true
+  },
+  {
+   "n": 97,
+   "ar": "القَدۡرِ",
+   "en": "Al-Qadr",
+   "meaning": "The Power, Fate",
+   "ayahs": 5,
+   "type": "Meccan",
+   "firstGlobal": 6126,
+   "bismillah": true
+  },
+  {
+   "n": 98,
+   "ar": "البَيِّنَةِ",
+   "en": "Al-Bayyina",
+   "meaning": "The Evidence",
+   "ayahs": 8,
+   "type": "Medinan",
+   "firstGlobal": 6131,
+   "bismillah": true
+  },
+  {
+   "n": 99,
+   "ar": "الزَّلۡزَلَةِ",
+   "en": "Az-Zalzala",
+   "meaning": "The Earthquake",
+   "ayahs": 8,
+   "type": "Medinan",
+   "firstGlobal": 6139,
+   "bismillah": true
+  },
+  {
+   "n": 100,
+   "ar": "العَادِيَاتِ",
+   "en": "Al-Aadiyaat",
+   "meaning": "The Chargers",
+   "ayahs": 11,
+   "type": "Meccan",
+   "firstGlobal": 6147,
+   "bismillah": true
+  },
+  {
+   "n": 101,
+   "ar": "القَارِعَةِ",
+   "en": "Al-Qaari'a",
+   "meaning": "The Calamity",
+   "ayahs": 11,
+   "type": "Meccan",
+   "firstGlobal": 6158,
+   "bismillah": true
+  },
+  {
+   "n": 102,
+   "ar": "التَّكَاثُرِ",
+   "en": "At-Takaathur",
+   "meaning": "Competition",
+   "ayahs": 8,
+   "type": "Meccan",
+   "firstGlobal": 6169,
+   "bismillah": true
+  },
+  {
+   "n": 103,
+   "ar": "العَصۡرِ",
+   "en": "Al-Asr",
+   "meaning": "The Declining Day, Epoch",
+   "ayahs": 3,
+   "type": "Meccan",
+   "firstGlobal": 6177,
+   "bismillah": true
+  },
+  {
+   "n": 104,
+   "ar": "الهُمَزَةِ",
+   "en": "Al-Humaza",
+   "meaning": "The Traducer",
+   "ayahs": 9,
+   "type": "Meccan",
+   "firstGlobal": 6180,
+   "bismillah": true
+  },
+  {
+   "n": 105,
+   "ar": "الفِيلِ",
+   "en": "Al-Fil",
+   "meaning": "The Elephant",
+   "ayahs": 5,
+   "type": "Meccan",
+   "firstGlobal": 6189,
+   "bismillah": true
+  },
+  {
+   "n": 106,
+   "ar": "قُرَيۡشٍ",
+   "en": "Quraish",
+   "meaning": "Quraysh",
+   "ayahs": 4,
+   "type": "Meccan",
+   "firstGlobal": 6194,
+   "bismillah": true
+  },
+  {
+   "n": 107,
+   "ar": "المَاعُونِ",
+   "en": "Al-Maa'un",
+   "meaning": "Almsgiving",
+   "ayahs": 7,
+   "type": "Meccan",
+   "firstGlobal": 6198,
+   "bismillah": true
+  },
+  {
+   "n": 108,
+   "ar": "الكَوۡثَرِ",
+   "en": "Al-Kawthar",
+   "meaning": "Abundance",
+   "ayahs": 3,
+   "type": "Meccan",
+   "firstGlobal": 6205,
+   "bismillah": true
+  },
+  {
+   "n": 109,
+   "ar": "الكَافِرُونَ",
+   "en": "Al-Kaafiroon",
+   "meaning": "The Disbelievers",
+   "ayahs": 6,
+   "type": "Meccan",
+   "firstGlobal": 6208,
+   "bismillah": true
+  },
+  {
+   "n": 110,
+   "ar": "النَّصۡرِ",
+   "en": "An-Nasr",
+   "meaning": "Divine Support",
+   "ayahs": 3,
+   "type": "Medinan",
+   "firstGlobal": 6214,
+   "bismillah": true
+  },
+  {
+   "n": 111,
+   "ar": "المَسَدِ",
+   "en": "Al-Masad",
+   "meaning": "The Palm Fibre",
+   "ayahs": 5,
+   "type": "Meccan",
+   "firstGlobal": 6217,
+   "bismillah": true
+  },
+  {
+   "n": 112,
+   "ar": "الإِخۡلَاصِ",
+   "en": "Al-Ikhlaas",
+   "meaning": "Sincerity",
+   "ayahs": 4,
+   "type": "Meccan",
+   "firstGlobal": 6222,
+   "bismillah": true
+  },
+  {
+   "n": 113,
+   "ar": "الفَلَقِ",
+   "en": "Al-Falaq",
+   "meaning": "The Dawn",
+   "ayahs": 5,
+   "type": "Meccan",
+   "firstGlobal": 6226,
+   "bismillah": true
+  },
+  {
+   "n": 114,
+   "ar": "النَّاسِ",
+   "en": "An-Naas",
+   "meaning": "Mankind",
+   "ayahs": 6,
+   "type": "Meccan",
+   "firstGlobal": 6231,
+   "bismillah": true
+  }
+ ],
+ "juz": [
+  {
+   "n": 1,
+   "name": "Alif Lam Meem",
+   "nameAr": "الٓمٓ",
+   "nameRef": "2:1",
+   "start": {
+    "s": 1,
+    "a": 1
+   },
+   "end": {
+    "s": 2,
+    "a": 141
+   }
+  },
+  {
+   "n": 2,
+   "name": "Sayaqool",
+   "nameAr": "سَيَقُولُ",
+   "nameRef": "2:142",
+   "start": {
+    "s": 2,
+    "a": 142
+   },
+   "end": {
+    "s": 2,
+    "a": 252
+   }
+  },
+  {
+   "n": 3,
+   "name": "Tilkar Rusul",
+   "nameAr": "تِلْكَ ٱلرُّسُلُ",
+   "nameRef": "2:253",
+   "start": {
+    "s": 2,
+    "a": 253
+   },
+   "end": {
+    "s": 3,
+    "a": 92
+   }
+  },
+  {
+   "n": 4,
+   "name": "Lan Tanaloo",
+   "nameAr": "لَن تَنَالُوا۟",
+   "nameRef": "3:92",
+   "start": {
+    "s": 3,
+    "a": 93
+   },
+   "end": {
+    "s": 4,
+    "a": 23
+   }
+  },
+  {
+   "n": 5,
+   "name": "Wal Muhsanat",
+   "nameAr": "وَٱلْمُحْصَنَٰتُ",
+   "nameRef": "4:24",
+   "start": {
+    "s": 4,
+    "a": 24
+   },
+   "end": {
+    "s": 4,
+    "a": 147
+   }
+  },
+  {
+   "n": 6,
+   "name": "La Yuhibbullah",
+   "nameAr": "لَّا يُحِبُّ ٱللَّهُ",
+   "nameRef": "4:148",
+   "start": {
+    "s": 4,
+    "a": 148
+   },
+   "end": {
+    "s": 5,
+    "a": 81
+   }
+  },
+  {
+   "n": 7,
+   "name": "Wa Iza Samiu",
+   "nameAr": "وَإِذَا سَمِعُوا۟",
+   "nameRef": "5:83",
+   "start": {
+    "s": 5,
+    "a": 82
+   },
+   "end": {
+    "s": 6,
+    "a": 110
+   }
+  },
+  {
+   "n": 8,
+   "name": "Wa Law Annana",
+   "nameAr": "وَلَوْ أَنَّنَا",
+   "nameRef": "6:111",
+   "start": {
+    "s": 6,
+    "a": 111
+   },
+   "end": {
+    "s": 7,
+    "a": 87
+   }
+  },
+  {
+   "n": 9,
+   "name": "Qalal Mala",
+   "nameAr": "قَالَ ٱلْمَلَأُ",
+   "nameRef": "7:88",
+   "start": {
+    "s": 7,
+    "a": 88
+   },
+   "end": {
+    "s": 8,
+    "a": 40
+   }
+  },
+  {
+   "n": 10,
+   "name": "Wa A'lamu",
+   "nameAr": "وَٱعْلَمُوٓا۟",
+   "nameRef": "8:41",
+   "start": {
+    "s": 8,
+    "a": 41
+   },
+   "end": {
+    "s": 9,
+    "a": 92
+   }
+  },
+  {
+   "n": 11,
+   "name": "Ya'taziroon",
+   "nameAr": "يَعْتَذِرُونَ",
+   "nameRef": "9:94",
+   "start": {
+    "s": 9,
+    "a": 93
+   },
+   "end": {
+    "s": 11,
+    "a": 5
+   }
+  },
+  {
+   "n": 12,
+   "name": "Wa Ma Min Dabbah",
+   "nameAr": "وَمَا مِن دَآبَّةٍۢ",
+   "nameRef": "11:6",
+   "start": {
+    "s": 11,
+    "a": 6
+   },
+   "end": {
+    "s": 12,
+    "a": 52
+   }
+  },
+  {
+   "n": 13,
+   "name": "Wa Ma Ubarri'u",
+   "nameAr": "وَمَآ أُبَرِّئُ",
+   "nameRef": "12:53",
+   "start": {
+    "s": 12,
+    "a": 53
+   },
+   "end": {
+    "s": 14,
+    "a": 52
+   }
+  },
+  {
+   "n": 14,
+   "name": "Rubama",
+   "nameAr": "رُّبَمَا",
+   "nameRef": "15:2",
+   "start": {
+    "s": 15,
+    "a": 1
+   },
+   "end": {
+    "s": 16,
+    "a": 128
+   }
+  },
+  {
+   "n": 15,
+   "name": "Subhanallazi",
+   "nameAr": "سُبْحَٰنَ ٱلَّذِىٓ",
+   "nameRef": "17:1",
+   "start": {
+    "s": 17,
+    "a": 1
+   },
+   "end": {
+    "s": 18,
+    "a": 74
+   }
+  },
+  {
+   "n": 16,
+   "name": "Qal Alam",
+   "nameAr": "قَالَ أَلَمْ",
+   "nameRef": "18:75",
+   "start": {
+    "s": 18,
+    "a": 75
+   },
+   "end": {
+    "s": 20,
+    "a": 135
+   }
+  },
+  {
+   "n": 17,
+   "name": "Iqtaraba",
+   "nameAr": "ٱقْتَرَبَ",
+   "nameRef": "21:1",
+   "start": {
+    "s": 21,
+    "a": 1
+   },
+   "end": {
+    "s": 22,
+    "a": 78
+   }
+  },
+  {
+   "n": 18,
+   "name": "Qad Aflaha",
+   "nameAr": "قَدْ أَفْلَحَ",
+   "nameRef": "23:1",
+   "start": {
+    "s": 23,
+    "a": 1
+   },
+   "end": {
+    "s": 25,
+    "a": 20
+   }
+  },
+  {
+   "n": 19,
+   "name": "Wa Qalallazina",
+   "nameAr": "وَقَالَ ٱلَّذِينَ",
+   "nameRef": "25:21",
+   "start": {
+    "s": 25,
+    "a": 21
+   },
+   "end": {
+    "s": 27,
+    "a": 55
+   }
+  },
+  {
+   "n": 20,
+   "name": "Amman Khalaq",
+   "nameAr": "أَمَّنْ خَلَقَ",
+   "nameRef": "27:60",
+   "start": {
+    "s": 27,
+    "a": 56
+   },
+   "end": {
+    "s": 29,
+    "a": 45
+   }
+  },
+  {
+   "n": 21,
+   "name": "Utlu Ma Oohiya",
+   "nameAr": "ٱتْلُ مَآ أُوحِىَ",
+   "nameRef": "29:45",
+   "start": {
+    "s": 29,
+    "a": 46
+   },
+   "end": {
+    "s": 33,
+    "a": 30
+   }
+  },
+  {
+   "n": 22,
+   "name": "Wa Man Yaqnut",
+   "nameAr": "وَمَن يَقْنُتْ",
+   "nameRef": "33:31",
+   "start": {
+    "s": 33,
+    "a": 31
+   },
+   "end": {
+    "s": 36,
+    "a": 27
+   }
+  },
+  {
+   "n": 23,
+   "name": "Wa Mali",
+   "nameAr": "وَمَا لِىَ",
+   "nameRef": "36:22",
+   "start": {
+    "s": 36,
+    "a": 28
+   },
+   "end": {
+    "s": 39,
+    "a": 31
+   }
+  },
+  {
+   "n": 24,
+   "name": "Faman Azlamu",
+   "nameAr": "فَمَنْ أَظْلَمُ",
+   "nameRef": "39:32",
+   "start": {
+    "s": 39,
+    "a": 32
+   },
+   "end": {
+    "s": 41,
+    "a": 46
+   }
+  },
+  {
+   "n": 25,
+   "name": "Ilayhi Yuraddu",
+   "nameAr": "إِلَيْهِ يُرَدُّ",
+   "nameRef": "41:47",
+   "start": {
+    "s": 41,
+    "a": 47
+   },
+   "end": {
+    "s": 45,
+    "a": 37
+   }
+  },
+  {
+   "n": 26,
+   "name": "Ha Meem",
+   "nameAr": "حمٓ",
+   "nameRef": "46:1",
+   "start": {
+    "s": 46,
+    "a": 1
+   },
+   "end": {
+    "s": 51,
+    "a": 30
+   }
+  },
+  {
+   "n": 27,
+   "name": "Qala Fama Khatbukum",
+   "nameAr": "قَالَ فَمَا خَطْبُكُمْ",
+   "nameRef": "51:31",
+   "start": {
+    "s": 51,
+    "a": 31
+   },
+   "end": {
+    "s": 57,
+    "a": 29
+   }
+  },
+  {
+   "n": 28,
+   "name": "Qad Sami Allahu",
+   "nameAr": "قَدْ سَمِعَ ٱللَّهُ",
+   "nameRef": "58:1",
+   "start": {
+    "s": 58,
+    "a": 1
+   },
+   "end": {
+    "s": 66,
+    "a": 12
+   }
+  },
+  {
+   "n": 29,
+   "name": "Tabarakallazi",
+   "nameAr": "تَبَٰرَكَ ٱلَّذِى",
+   "nameRef": "67:1",
+   "start": {
+    "s": 67,
+    "a": 1
+   },
+   "end": {
+    "s": 77,
+    "a": 50
+   }
+  },
+  {
+   "n": 30,
+   "name": "Amma",
+   "nameAr": "عَمَّ",
+   "nameRef": "78:1",
+   "start": {
+    "s": 78,
+    "a": 1
+   },
+   "end": {
+    "s": 114,
+    "a": 6
+   }
+  }
+ ]
+}
