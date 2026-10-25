@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { COLORS, FONTS, SHADOWS } from '../../constants/theme';
 import { getAllSurahs, getAllJuz } from '../../services/quranData';
 import { getLastRead } from '../../services/storage';
@@ -98,6 +98,15 @@ export default function ReadingLibraryScreen() {
             style={[styles.modeBtnText, viewMode === 'juz' && styles.modeBtnTextActive]}
           >
             30 Juz
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.modeBtn}
+          onPress={() => router.push('/memorize')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.modeBtnText, { color: COLORS.primary, fontFamily: FONTS.sansBold }]}>
+            ✨ Memorize
           </Text>
         </TouchableOpacity>
       </View>

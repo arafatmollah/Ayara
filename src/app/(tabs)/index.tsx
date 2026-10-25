@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   ScrollView,
@@ -25,8 +25,19 @@ import {
   getKhatmahProgress,
   getRecentHistory,
   recordVersesRead,
+  getDailyMissions,
 } from '../../services/storage';
 import { getDailyReflection, getNextReflection, DailyReflectionItem } from '../../services/reflections';
+import {
+  getDailyWord,
+  getNextDailyWord,
+  BLESSED_SURAHS,
+  DailyWordItem,
+} from '../../services/dailyContent';
+import { getSurahAyahs } from '../../services/quranData';
+import { getWordLearningDetails } from '../../services/learningData';
+import { GrammarExerciseModal } from '../../components/GrammarExerciseModal';
+import { WordLearningModal } from '../../components/WordLearningModal';
 import {
   DailyProgress,
   DayActivity,
@@ -35,13 +46,23 @@ import {
   PersonalStats,
   TimeSegment,
   UserProfile,
+  DailyMissionsState,
+  WordLearningDetails,
 } from '../../types/quran';
 
+const DHIKR_ITEMS = [
+  { ar: 'سُبْحَانَ ٱللَّهِ', tr: 'SubhanAllah', en: 'Glory be to Allah' },
+  { ar: 'ٱلْحَمْدُ لِلَّهِ', tr: 'Alhamdulillah', en: 'All praise is to Allah' },
+  { ar: 'ٱللَّهُ أَكْبَرُ', tr: 'Allahu Akbar', en: 'Allah is the Greatest' },
+  { ar: 'لَا إِلَٰهَ إِلَّا ٱللَّهُ', tr: 'La ilaha illa Allah', en: 'None worthy of worship but Allah' },
+  { ar: 'أَسْتَغْفِرُ ٱللَّهَ', tr: 'Astaghfirullah', en: 'I seek forgiveness from Allah' },
+];
+
 export default function QuranlyHomeScreen() {
-  const [profile, setProfile] = useState<UserProfile>({
+  const [profile, setProfile] = useState<UserProfile>(() => ({
     name: 'Believer',
     joinedAt: Date.now(),
-  });
+  }));
   const [progress, setProgress] = useState<DailyProgress>({
     date: '',
     versesRead: 0,
@@ -49,6 +70,8 @@ export default function QuranlyHomeScreen() {
     dailyGoal: 3,
     streakDays: 0,
   });
+  const [dailyMissions, setDailyMissions] = useState<DailyMissionsState | null>(null);
+  const [isGrammarModalVisible, setIsGrammarModalVisible] = useState(false);
   const [weeklyDays, setWeeklyDays] = useState<DayActivity[]>([]);
   const [lastRead, setLastRead] = useState<LastReadItem | null>(null);
   const [recentList, setRecentList] = useState<LastReadItem[]>([]);
@@ -67,14 +90,20 @@ export default function QuranlyHomeScreen() {
   });
 
   const [reflection, setReflection] = useState<DailyReflectionItem>(() => getDailyReflection());
+  const [dailyWord, setDailyWord] = useState<DailyWordItem>(() => getDailyWord());
+  const [wordModalVisible, setWordModalVisible] = useState(false);
+  const [activeWordDetails, setActiveWordDetails] = useState<WordLearningDetails | null>(null);
+
+  const [tasbihIndex, setTasbihIndex] = useState(0);
+  const [tasbihCount, setTasbihCount] = useState(0);
 
   const [isGoalModalVisible, setIsGoalModalVisible] = useState(false);
   const [isNameModalVisible, setIsNameModalVisible] = useState(false);
   const [customGoalText, setCustomGoalText] = useState('');
   const [editNameText, setEditNameText] = useState('');
 
-  const loadData = async () => {
-    const [prof, prog, week, lr, st, km, rec] = await Promise.all([
+  const loadData = React.useCallback(async () => {
+    const [prof, prog, week, lr, st, km, rec, missions] = await Promise.all([
       getUserProfile(),
       getDailyProgress(),
       getWeeklyActivity(),
@@ -82,6 +111,7 @@ export default function QuranlyHomeScreen() {
       getTimeSegmentStats(timeSegment),
       getKhatmahProgress(),
       getRecentHistory(),
+      getDailyMissions(),
     ]);
     setProfile(prof);
     setProgress(prog);
@@ -90,12 +120,13 @@ export default function QuranlyHomeScreen() {
     setStats(st);
     setKhatmah(km);
     setRecentList(rec);
-  };
+    setDailyMissions(missions);
+  }, [timeSegment]);
 
   useFocusEffect(
     React.useCallback(() => {
       loadData();
-    }, [timeSegment])
+    }, [loadData])
   );
 
   const handleSegmentChange = async (seg: TimeSegment) => {
@@ -156,6 +187,83 @@ export default function QuranlyHomeScreen() {
     setProfile(updated);
     setIsNameModalVisible(false);
     setEditNameText('');
+  };
+
+  const currentDhikr = DHIKR_ITEMS[tasbihIndex];
+
+  const handleCycleWord = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    setDailyWord((prev) => getNextDailyWord(prev.id));
+  };
+
+  const handleExploreWord = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+
+    const ayahs = getSurahAyahs(dailyWord.surah);
+    const targetAyah = ayahs.find((a) => a.ayah === dailyWord.ayah);
+    if (targetAyah && targetAyah.words && targetAyah.words[dailyWord.wordIndex]) {
+      const wordObj = targetAyah.words[dailyWord.wordIndex];
+      const details = getWordLearningDetails(
+        dailyWord.surah,
+        dailyWord.ayah,
+        dailyWord.wordIndex,
+        wordObj
+      );
+      setActiveWordDetails(details);
+      setWordModalVisible(true);
+    } else {
+      router.push({
+        pathname: '/surah/[id]',
+        params: {
+          id: dailyWord.surah.toString(),
+          targetAyah: dailyWord.ayah.toString(),
+        },
+      });
+    }
+  };
+
+  const handleNavigateFromWordModal = (surah: number, ayah: number) => {
+    setWordModalVisible(false);
+    router.push({
+      pathname: '/surah/[id]',
+      params: {
+        id: surah.toString(),
+        targetAyah: ayah.toString(),
+      },
+    });
+  };
+
+  const handleTasbihTap = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    if (tasbihCount + 1 >= 33) {
+      try {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } catch {}
+      setTasbihCount(33);
+    } else {
+      setTasbihCount((prev) => prev + 1);
+    }
+  };
+
+  const handleTasbihNextDhikr = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    setTasbihIndex((prev) => (prev + 1) % DHIKR_ITEMS.length);
+    setTasbihCount(0);
+  };
+
+  const handleTasbihReset = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    setTasbihCount(0);
   };
 
   const percent = Math.min(
@@ -302,6 +410,527 @@ export default function QuranlyHomeScreen() {
               <Text style={styles.readQuranButtonText}>Read Quran</Text>
             </TouchableOpacity>
           </LinearGradient>
+
+          {/* Playful Quick Feature Launchpad */}
+          <View style={styles.quickHubSection}>
+            <View style={styles.quickHubHeaderRow}>
+              <Text style={styles.quickHubTitle}>Explore & Learn</Text>
+              <View style={styles.quickHubBadge}>
+                <Ionicons name="sparkles" size={12} color={COLORS.primaryDark} />
+                <Text style={styles.quickHubBadgeText}>Interactive</Text>
+              </View>
+            </View>
+            <View style={styles.quickHubGrid}>
+              {/* Memorize */}
+              <TouchableOpacity
+                style={[styles.quickHubCard, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' }]}
+                onPress={() => router.push('/memorize')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Open Quran Memorization Mode"
+              >
+                <View style={[styles.quickHubIconBox, { backgroundColor: '#FEF3C7' }]}>
+                  <Ionicons name="bulb" size={20} color="#D97706" />
+                </View>
+                <View style={{ flex: 1, marginTop: 8 }}>
+                  <Text style={[styles.quickHubCardTitle, { color: '#92400E' }]}>Hifz Mode</Text>
+                  <Text style={styles.quickHubCardSub}>Hide verses & test recall</Text>
+                </View>
+                <View style={styles.quickHubArrowRow}>
+                  <Text style={[styles.quickHubActionText, { color: '#B45309' }]}>Practice</Text>
+                  <Ionicons name="arrow-forward" size={12} color="#B45309" />
+                </View>
+              </TouchableOpacity>
+
+              {/* Vocab Trainer */}
+              <TouchableOpacity
+                style={[styles.quickHubCard, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}
+                onPress={() => router.push('/trainer')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Open Vocabulary Trainer"
+              >
+                <View style={[styles.quickHubIconBox, { backgroundColor: '#D1FAE5' }]}>
+                  <Ionicons name="repeat" size={20} color="#059669" />
+                </View>
+                <View style={{ flex: 1, marginTop: 8 }}>
+                  <Text style={[styles.quickHubCardTitle, { color: '#065F46' }]}>Vocab Deck</Text>
+                  <Text style={styles.quickHubCardSub}>Spaced-repetition trainer</Text>
+                </View>
+                <View style={styles.quickHubArrowRow}>
+                  <Text style={[styles.quickHubActionText, { color: '#047857' }]}>Review</Text>
+                  <Ionicons name="arrow-forward" size={12} color="#047857" />
+                </View>
+              </TouchableOpacity>
+
+              {/* Arabic Paths */}
+              <TouchableOpacity
+                style={[styles.quickHubCard, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}
+                onPress={() => router.push('/learn')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Open Quranic Arabic Learning Paths"
+              >
+                <View style={[styles.quickHubIconBox, { backgroundColor: '#DBEAFE' }]}>
+                  <Ionicons name="school" size={20} color="#2563EB" />
+                </View>
+                <View style={{ flex: 1, marginTop: 8 }}>
+                  <Text style={[styles.quickHubCardTitle, { color: '#1E40AF' }]}>Arabic Paths</Text>
+                  <Text style={styles.quickHubCardSub}>Roots & grammar lessons</Text>
+                </View>
+                <View style={styles.quickHubArrowRow}>
+                  <Text style={[styles.quickHubActionText, { color: '#1D4ED8' }]}>5 Courses</Text>
+                  <Ionicons name="arrow-forward" size={12} color="#1D4ED8" />
+                </View>
+              </TouchableOpacity>
+
+              {/* Saved Words Bank */}
+              <TouchableOpacity
+                style={[styles.quickHubCard, { backgroundColor: '#FAF5FF', borderColor: '#E9D5FF' }]}
+                onPress={() => router.push('/(tabs)/saved')}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Open Saved Words Bank"
+              >
+                <View style={[styles.quickHubIconBox, { backgroundColor: '#EDE9FE' }]}>
+                  <Ionicons name="bookmarks" size={20} color="#7C3AED" />
+                </View>
+                <View style={{ flex: 1, marginTop: 8 }}>
+                  <Text style={[styles.quickHubCardTitle, { color: '#5B21B6' }]}>Word Bank</Text>
+                  <Text style={styles.quickHubCardSub}>Saved Quranic vocabulary</Text>
+                </View>
+                <View style={styles.quickHubArrowRow}>
+                  <Text style={[styles.quickHubActionText, { color: '#6D28D9' }]}>Collection</Text>
+                  <Ionicons name="arrow-forward" size={12} color="#6D28D9" />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Daily Learning Missions (خطة الاستقامة اليومية) */}
+          {dailyMissions && (
+            <View style={styles.missionsCard}>
+              {/* Header */}
+              <View style={styles.missionsHeaderRow}>
+                <View style={styles.missionsBadgeRow}>
+                  <Text style={styles.missionsArabicTitle}>خُطَّةُ الاِسْتِقَامَةِ</Text>
+                  <View
+                    style={[
+                      styles.missionsStatusPill,
+                      dailyMissions.allCompleted && styles.missionsStatusPillComplete,
+                    ]}
+                  >
+                    <Ionicons
+                      name={
+                        dailyMissions.allCompleted
+                          ? 'checkmark-done-circle'
+                          : 'sparkles'
+                      }
+                      size={13}
+                      color={dailyMissions.allCompleted ? '#059669' : COLORS.primaryDark}
+                    />
+                    <Text
+                      style={[
+                        styles.missionsStatusPillText,
+                        dailyMissions.allCompleted && styles.missionsStatusPillTextComplete,
+                      ]}
+                    >
+                      {dailyMissions.allCompleted
+                        ? 'All Completed 🌿'
+                        : `${dailyMissions.completedCount} of ${dailyMissions.totalCount} completed`}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={styles.missionsTitle}>Daily Learning Missions</Text>
+                <Text style={styles.missionsSub}>
+                  Balanced daily steps for worship, vocabulary, and grammar
+                </Text>
+              </View>
+
+              {/* Missions Items */}
+              <View style={styles.missionsList}>
+                {dailyMissions.missions.map((mission) => {
+                  const percentDone = Math.min(
+                    100,
+                    mission.target > 0
+                      ? Math.round((mission.current / mission.target) * 100)
+                      : 0
+                  );
+
+                  const handleMissionAction = () => {
+                    try {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    } catch {}
+
+                    if (mission.id === 'read_verses') {
+                      handleReadPress();
+                    } else if (mission.id === 'learn_words') {
+                      router.push('/(tabs)/saved');
+                    } else if (mission.id === 'grammar_exercise') {
+                      setIsGrammarModalVisible(true);
+                    } else if (mission.id === 'review_vocab') {
+                      router.push('/trainer');
+                    }
+                  };
+
+                  return (
+                    <View key={mission.id} style={styles.missionItemCard}>
+                      <View style={styles.missionItemTopRow}>
+                        <View
+                          style={[
+                            styles.missionIconCircle,
+                            mission.completed && styles.missionIconCircleCompleted,
+                          ]}
+                        >
+                          <Ionicons
+                            name={mission.completed ? 'checkmark' : (mission.icon as any)}
+                            size={18}
+                            color={mission.completed ? '#059669' : COLORS.primary}
+                          />
+                        </View>
+
+                        <View style={{ flex: 1, marginLeft: 10, marginRight: 8 }}>
+                          <View style={styles.missionCategoryRow}>
+                            <Text style={styles.missionItemTitle}>{mission.title}</Text>
+                            <View
+                              style={[
+                                styles.categoryBadge,
+                                mission.category === 'worship'
+                                  ? styles.categoryBadgeWorship
+                                  : styles.categoryBadgeLearning,
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.categoryBadgeText,
+                                  mission.category === 'worship'
+                                    ? styles.categoryBadgeTextWorship
+                                    : styles.categoryBadgeTextLearning,
+                                ]}
+                              >
+                                {mission.category === 'worship' ? 'Worship' : 'Learning'}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text style={styles.missionItemSub}>{mission.subtitle}</Text>
+                        </View>
+
+                        {mission.completed ? (
+                          <View style={styles.missionCompletedPill}>
+                            <Ionicons name="checkmark-circle" size={14} color="#059669" />
+                            <Text style={styles.missionCompletedPillText}>Done</Text>
+                          </View>
+                        ) : (
+                          <TouchableOpacity
+                            style={styles.missionActionBtn}
+                            onPress={handleMissionAction}
+                            activeOpacity={0.7}
+                            accessibilityRole="button"
+                            accessibilityLabel={`${mission.actionLabel} ${mission.title}`}
+                          >
+                            <Text style={styles.missionActionBtnText}>{mission.actionLabel}</Text>
+                            <Ionicons
+                              name="chevron-forward"
+                              size={12}
+                              color={COLORS.primaryDark}
+                            />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+
+                      {/* Progress Bar & Numeric Feedback */}
+                      <View style={styles.missionProgressRow}>
+                        <View style={styles.missionBarTrack}>
+                          <View
+                            style={[
+                              styles.missionBarFill,
+                              mission.completed && styles.missionBarFillCompleted,
+                              { width: `${percentDone}%` },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.missionProgressCount}>
+                          {mission.current} / {mission.target} {mission.unit}
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+
+              {/* Peaceful Istiqamah Completion Banner */}
+              {dailyMissions.allCompleted && (
+                <View style={styles.istiqamahBanner}>
+                  <Ionicons name="heart" size={18} color="#F87171" />
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <Text style={styles.istiqamahBannerTitle}>
+                      Alhamdulillah for Your Steadfastness
+                    </Text>
+                    <Text style={styles.istiqamahBannerSub}>
+                      &ldquo;The deeds most loved by Allah are those done regularly, even if few.&rdquo;
+                      May Allah accept your efforts and grant barakah in your learning.
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Quranic Arabic Learning Paths Banner */}
+          <TouchableOpacity
+            style={styles.learningPathsBanner}
+            onPress={() => router.push('/learn')}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Quranic Arabic Learning Paths"
+          >
+            <View style={styles.learningPathsIconBox}>
+              <Ionicons name="school" size={22} color={COLORS.primaryDark} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12, marginRight: 8 }}>
+              <View style={styles.learningPathsTagRow}>
+                <Text style={styles.learningPathsBadgeText}>STRUCTURED CURRICULUM</Text>
+                <Text style={styles.learningPathsArabicSub}>مَسَارَاتُ العَرَبِيَّةِ</Text>
+              </View>
+              <Text style={styles.learningPathsTitle}>Quranic Arabic Paths</Text>
+              <Text style={styles.learningPathsDesc}>
+                5 beginner-to-intermediate courses: Common Words, Pronouns, Particles, Roots & Sentences.
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={COLORS.primaryDark} />
+          </TouchableOpacity>
+
+          {/* Quranic Word of the Day */}
+          <View style={styles.wordOfTheDayCard}>
+            <View style={styles.wordCardHeaderRow}>
+              <View style={styles.wordBadgeRow}>
+                <Text style={styles.wordArabicTag}>كَلِمَةُ الْيَوْمِ</Text>
+                <View style={styles.wordThemePill}>
+                  <Text style={styles.wordThemePillText}>{dailyWord.theme}</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.cycleWordBtn}
+                onPress={handleCycleWord}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Cycle next word of the day"
+              >
+                <Ionicons name="shuffle" size={13} color={COLORS.primaryDark} />
+                <Text style={styles.cycleWordBtnText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.wordMainContent}>
+              <Text style={styles.wordArabicBig}>{dailyWord.arabic}</Text>
+              <Text style={styles.wordTransliteration}>{dailyWord.transliteration}</Text>
+              <Text style={styles.wordMeaning}>&ldquo;{dailyWord.english}&rdquo;</Text>
+
+              {/* Root Pill & Context */}
+              <View style={styles.wordRootPillRow}>
+                <View style={styles.rootPill}>
+                  <Text style={styles.rootPillLabel}>ROOT</Text>
+                  <Text style={styles.rootPillArabic}>{dailyWord.rootAr}</Text>
+                </View>
+                <Text style={styles.rootPillCount}>{dailyWord.rootCount} occurrences</Text>
+              </View>
+              <Text style={styles.rootMeaningText}>Root Meaning: {dailyWord.rootMeaning}</Text>
+
+              {/* Ayah Snippet Context */}
+              <View style={styles.wordSnippetBox}>
+                <Text style={styles.wordSnippetArabic}>{dailyWord.ayahSnippet}</Text>
+                <Text style={styles.wordSnippetRef}>
+                  Surah {dailyWord.surahName} • {dailyWord.surah}:{dailyWord.ayah}
+                </Text>
+              </View>
+
+              {/* Action Buttons */}
+              <View style={styles.wordActionRow}>
+                <TouchableOpacity
+                  style={styles.exploreWordBtn}
+                  onPress={handleExploreWord}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Explore word morphology and root occurrences"
+                >
+                  <Ionicons name="school" size={15} color="#FFFFFF" />
+                  <Text style={styles.exploreWordBtnText}>Explore Word & Root</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.viewVerseBtn}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/surah/[id]',
+                      params: {
+                        id: dailyWord.surah.toString(),
+                        targetAyah: dailyWord.ayah.toString(),
+                      },
+                    })
+                  }
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel="Read this Ayah in full reader"
+                >
+                  <Text style={styles.viewVerseBtnText}>Read Verse</Text>
+                  <Ionicons name="arrow-forward" size={13} color={COLORS.primaryDark} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+
+          {/* Blessed Surahs & Prophetic Sunnah Strip */}
+          <View style={styles.blessedSection}>
+            <View style={styles.blessedHeaderRow}>
+              <View>
+                <Text style={styles.blessedSectionTitle}>Blessed Surahs & Sunnah</Text>
+                <Text style={styles.blessedSectionSub}>Prophetic recommendations & spiritual virtues</Text>
+              </View>
+              <View style={styles.blessedArabicPill}>
+                <Text style={styles.blessedArabicPillText}>سُوَرٌ مُبَارَكَةٌ</Text>
+              </View>
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.blessedScroll}
+            >
+              {BLESSED_SURAHS.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.blessedCard,
+                    { backgroundColor: item.bgColor, borderColor: item.borderColor },
+                  ]}
+                  onPress={() => {
+                    try {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    } catch {}
+                    router.push({
+                      pathname: '/surah/[id]',
+                      params: {
+                        id: item.surahNumber.toString(),
+                        targetAyah: item.targetAyah ? item.targetAyah.toString() : '1',
+                      },
+                    });
+                  }}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Read ${item.title}`}
+                >
+                  <View style={styles.blessedCardTop}>
+                    <View
+                      style={[
+                        styles.blessedBadgeWrap,
+                        { backgroundColor: item.borderColor },
+                      ]}
+                    >
+                      <Ionicons name={item.icon as any} size={12} color={item.accentColor} />
+                      <Text style={[styles.blessedBadgeText, { color: item.accentColor }]}>
+                        {item.badge}
+                      </Text>
+                    </View>
+                    <Text style={styles.blessedArabicName}>{item.arabicTitle}</Text>
+                  </View>
+
+                  <Text style={styles.blessedCardTitle}>{item.title}</Text>
+                  <Text style={styles.blessedVirtueText} numberOfLines={3}>
+                    {item.virtue}
+                  </Text>
+
+                  <View style={styles.blessedActionRow}>
+                    <Text style={[styles.blessedReadText, { color: item.accentColor }]}>
+                      {item.targetAyah ? `Verse ${item.targetAyah}` : 'Read Surah'}
+                    </Text>
+                    <Ionicons name="arrow-forward" size={13} color={item.accentColor} />
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Playful Tasbih & Dhikr Pulse Widget */}
+          <View style={styles.tasbihCard}>
+            <View style={styles.tasbihHeaderRow}>
+              <View style={styles.tasbihTitleCol}>
+                <Text style={styles.tasbihArabicTitle}>تَسْبِيحُ الْقَلْبِ</Text>
+                <Text style={styles.tasbihMainTitle}>Daily Dhikr Pulse</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.tasbihCycleBtn}
+                onPress={handleTasbihNextDhikr}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Switch to next Dhikr phrase"
+              >
+                <Ionicons name="sync" size={12} color={COLORS.primaryDark} />
+                <Text style={styles.tasbihCycleBtnText}>Change</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Current Phrase Box */}
+            <View style={styles.tasbihPhraseBox}>
+              <Text style={styles.tasbihPhraseArabic}>{currentDhikr.ar}</Text>
+              <Text style={styles.tasbihPhraseTr}>{currentDhikr.tr}</Text>
+              <Text style={styles.tasbihPhraseEn}>&ldquo;{currentDhikr.en}&rdquo;</Text>
+            </View>
+
+            {/* Tap Counter & Stats */}
+            <View style={styles.tasbihInteractRow}>
+              <TouchableOpacity
+                style={[
+                  styles.tasbihTapButton,
+                  tasbihCount >= 33 && styles.tasbihTapButtonDone,
+                ]}
+                onPress={handleTasbihTap}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel={`Tap tasbih. Current count ${tasbihCount} of 33`}
+              >
+                <Text
+                  style={[
+                    styles.tasbihCountBig,
+                    tasbihCount >= 33 && styles.tasbihCountBigDone,
+                  ]}
+                >
+                  {tasbihCount}
+                </Text>
+                <Text style={styles.tasbihTargetSub}>/ 33</Text>
+                <Text style={styles.tasbihTapHint}>
+                  {tasbihCount >= 33 ? 'Completed! 🌿' : 'TAP TO COUNT'}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.tasbihSideControls}>
+                {tasbihCount > 0 && (
+                  <TouchableOpacity
+                    style={styles.tasbihResetBtn}
+                    onPress={handleTasbihReset}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel="Reset tasbih count"
+                  >
+                    <Ionicons name="refresh" size={15} color={COLORS.textMuted} />
+                    <Text style={styles.tasbihResetText}>Reset</Text>
+                  </TouchableOpacity>
+                )}
+
+                {tasbihCount >= 33 ? (
+                  <View style={styles.tasbihCompleteBadge}>
+                    <Ionicons name="checkmark-done" size={13} color="#059669" />
+                    <Text style={styles.tasbihCompleteBadgeText}>BarakAllah 🌟</Text>
+                  </View>
+                ) : (
+                  <View style={styles.tasbihRemainingBadge}>
+                    <Text style={styles.tasbihRemainingText}>
+                      {33 - tasbihCount} beads left
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
 
           {/* Dynamic Khatmah Journey Card */}
           <View style={styles.khatmahCard}>
@@ -464,7 +1093,7 @@ export default function QuranlyHomeScreen() {
             </Text>
 
             <Text style={styles.reflectionTrans}>
-              "{reflection.translation}"
+              &ldquo;{reflection.translation}&rdquo;
             </Text>
             <Text style={styles.reflectionRef}>
               Surah {reflection.surahName} • {reflection.surah}:{reflection.ayah}
@@ -610,6 +1239,21 @@ export default function QuranlyHomeScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Daily Grammar Exercise Modal */}
+      <GrammarExerciseModal
+        visible={isGrammarModalVisible}
+        onClose={() => setIsGrammarModalVisible(false)}
+        onCompleted={loadData}
+      />
+
+      {/* Interactive Word Learning Modal */}
+      <WordLearningModal
+        visible={wordModalVisible}
+        wordDetails={activeWordDetails}
+        onClose={() => setWordModalVisible(false)}
+        onNavigateToAyah={handleNavigateFromWordModal}
+      />
     </SafeAreaView>
   );
 }
@@ -1247,4 +1891,766 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textSecondary,
   },
+
+  // Daily Learning Missions Card Styles
+  missionsCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+    marginBottom: 16,
+    ...SHADOWS.sm,
+  },
+  missionsHeaderRow: {
+    marginBottom: 14,
+  },
+  missionsBadgeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  missionsArabicTitle: {
+    fontSize: 16,
+    fontFamily: FONTS.arabicBold,
+    color: COLORS.primaryDark,
+  },
+  missionsStatusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primarySurface,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  missionsStatusPillComplete: {
+    backgroundColor: '#ECFDF5',
+  },
+  missionsStatusPillText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansSemiBold,
+    color: COLORS.primaryDark,
+  },
+  missionsStatusPillTextComplete: {
+    color: '#059669',
+  },
+  missionsTitle: {
+    fontSize: 18,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  missionsSub: {
+    fontSize: 12,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  missionsList: {
+    gap: 10,
+  },
+  missionItemCard: {
+    backgroundColor: COLORS.surfaceSubtle,
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  missionItemTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  missionIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  missionIconCircleCompleted: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
+  },
+  missionCategoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  missionItemTitle: {
+    fontSize: 14,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  categoryBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  categoryBadgeWorship: {
+    backgroundColor: '#EFF6FF',
+  },
+  categoryBadgeLearning: {
+    backgroundColor: '#F3EEFD',
+  },
+  categoryBadgeText: {
+    fontSize: 10,
+    fontFamily: FONTS.sansSemiBold,
+  },
+  categoryBadgeTextWorship: {
+    color: '#2563EB',
+  },
+  categoryBadgeTextLearning: {
+    color: '#7C3AED',
+  },
+  missionItemSub: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  missionCompletedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  missionCompletedPillText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+    color: '#059669',
+  },
+  missionActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+    gap: 3,
+  },
+  missionActionBtnText: {
+    fontSize: 12,
+    fontFamily: FONTS.sansSemiBold,
+    color: COLORS.primaryDark,
+  },
+  missionProgressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  missionBarTrack: {
+    flex: 1,
+    height: 6,
+    backgroundColor: COLORS.surface,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  missionBarFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 3,
+  },
+  missionBarFillCompleted: {
+    backgroundColor: '#10B981',
+  },
+  missionProgressCount: {
+    fontSize: 11,
+    fontFamily: FONTS.sansMedium,
+    color: COLORS.textSecondary,
+    minWidth: 70,
+    textAlign: 'right',
+  },
+  istiqamahBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    marginTop: 14,
+  },
+  istiqamahBannerTitle: {
+    fontSize: 13,
+    fontFamily: FONTS.sansBold,
+    color: '#166534',
+    marginBottom: 2,
+  },
+  istiqamahBannerSub: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: '#15803D',
+    lineHeight: 16,
+  },
+  learningPathsBanner: {
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    ...SHADOWS.sm,
+  },
+  learningPathsIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: COLORS.primarySurface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  learningPathsTagRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  learningPathsBadgeText: {
+    fontSize: 10,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.primaryDark,
+    letterSpacing: 0.8,
+  },
+  learningPathsArabicSub: {
+    fontSize: 12,
+    fontFamily: FONTS.arabicMedium,
+    color: COLORS.textMuted,
+  },
+  learningPathsTitle: {
+    fontSize: 16,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  learningPathsDesc: {
+    fontSize: 12,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textSecondary,
+    lineHeight: 16,
+    marginTop: 2,
+  },
+
+  // Quick Feature Hub Styles
+  quickHubSection: {
+    marginTop: 18,
+    marginBottom: 4,
+  },
+  quickHubHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 2,
+  },
+  quickHubTitle: {
+    fontSize: 16,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  quickHubBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primarySurface,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    gap: 4,
+  },
+  quickHubBadgeText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansSemiBold,
+    color: COLORS.primaryDark,
+  },
+  quickHubGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  quickHubCard: {
+    width: '48.5%',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    ...SHADOWS.sm,
+    justifyContent: 'space-between',
+    minHeight: 116,
+  },
+  quickHubIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickHubCardTitle: {
+    fontSize: 14,
+    fontFamily: FONTS.sansBold,
+  },
+  quickHubCardSub: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    lineHeight: 14,
+  },
+  quickHubArrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 10,
+  },
+  quickHubActionText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+  },
+
+  // Word of the Day Card Styles
+  wordOfTheDayCard: {
+    backgroundColor: '#FAF5FF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E9D5FF',
+    padding: 16,
+    marginTop: 16,
+    ...SHADOWS.sm,
+  },
+  wordCardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  wordBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  wordArabicTag: {
+    fontSize: 15,
+    fontFamily: FONTS.arabicBold,
+    color: '#7C3AED',
+  },
+  wordThemePill: {
+    backgroundColor: '#EDE9FE',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  wordThemePillText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansSemiBold,
+    color: '#6D28D9',
+  },
+  cycleWordBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+    gap: 4,
+  },
+  cycleWordBtnText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.primaryDark,
+  },
+  wordMainContent: {
+    alignItems: 'center',
+  },
+  wordArabicBig: {
+    fontFamily: FONTS.arabicBold,
+    fontSize: 32,
+    color: '#4C1D95',
+    textAlign: 'center',
+    marginTop: 4,
+    letterSpacing: 1,
+  },
+  wordTransliteration: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 14,
+    color: '#6D28D9',
+    marginTop: 2,
+  },
+  wordMeaning: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 16,
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  wordRootPillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+  rootPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3E8FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+  },
+  rootPillLabel: {
+    fontSize: 9,
+    fontFamily: FONTS.sansBold,
+    color: '#7C3AED',
+    letterSpacing: 0.5,
+  },
+  rootPillArabic: {
+    fontSize: 13,
+    fontFamily: FONTS.arabicBold,
+    color: '#5B21B6',
+  },
+  rootPillCount: {
+    fontSize: 11,
+    fontFamily: FONTS.sansMedium,
+    color: COLORS.textMuted,
+  },
+  rootMeaningText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  wordSnippetBox: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E9D5FF',
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  wordSnippetArabic: {
+    fontFamily: FONTS.arabicMedium,
+    fontSize: 15,
+    color: '#2E1065',
+    textAlign: 'center',
+  },
+  wordSnippetRef: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textMuted,
+    marginTop: 3,
+  },
+  wordActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 12,
+    width: '100%',
+  },
+  exploreWordBtn: {
+    flex: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#7C3AED',
+    paddingVertical: 9,
+    borderRadius: 12,
+    gap: 6,
+    ...SHADOWS.sm,
+  },
+  exploreWordBtnText: {
+    fontSize: 12,
+    fontFamily: FONTS.sansBold,
+    color: '#FFFFFF',
+  },
+  viewVerseBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+    gap: 4,
+  },
+  viewVerseBtnText: {
+    fontSize: 12,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.primaryDark,
+  },
+
+  // Blessed Surahs Strip Styles
+  blessedSection: {
+    marginTop: 18,
+  },
+  blessedHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 2,
+  },
+  blessedSectionTitle: {
+    fontSize: 16,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  blessedSectionSub: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textMuted,
+    marginTop: 1,
+  },
+  blessedArabicPill: {
+    backgroundColor: COLORS.primarySurface,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  blessedArabicPillText: {
+    fontSize: 12,
+    fontFamily: FONTS.arabicBold,
+    color: COLORS.primaryDark,
+  },
+  blessedScroll: {
+    gap: 10,
+    paddingVertical: 4,
+  },
+  blessedCard: {
+    width: 210,
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    ...SHADOWS.sm,
+    justifyContent: 'space-between',
+  },
+  blessedCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  blessedBadgeWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+    gap: 4,
+  },
+  blessedBadgeText: {
+    fontSize: 10,
+    fontFamily: FONTS.sansBold,
+  },
+  blessedArabicName: {
+    fontSize: 13,
+    fontFamily: FONTS.arabicBold,
+    color: COLORS.textPrimary,
+  },
+  blessedCardTitle: {
+    fontSize: 15,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  blessedVirtueText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textSecondary,
+    lineHeight: 15,
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  blessedActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  blessedReadText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+  },
+
+  // Tasbih & Dhikr Pulse Widget Styles
+  tasbihCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 16,
+    marginTop: 16,
+    ...SHADOWS.sm,
+  },
+  tasbihHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  tasbihTitleCol: {
+    flex: 1,
+  },
+  tasbihArabicTitle: {
+    fontSize: 13,
+    fontFamily: FONTS.arabicBold,
+    color: COLORS.primary,
+  },
+  tasbihMainTitle: {
+    fontSize: 15,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.textPrimary,
+  },
+  tasbihCycleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primarySurface,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  tasbihCycleBtnText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.primaryDark,
+  },
+  tasbihPhraseBox: {
+    backgroundColor: '#FAF5FF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#F3E8FF',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  tasbihPhraseArabic: {
+    fontFamily: FONTS.arabicBold,
+    fontSize: 22,
+    color: '#4C1D95',
+    textAlign: 'center',
+  },
+  tasbihPhraseTr: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 13,
+    color: '#7C3AED',
+    marginTop: 2,
+  },
+  tasbihPhraseEn: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 1,
+  },
+  tasbihInteractRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  tasbihTapButton: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#7C3AED',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.md,
+    borderWidth: 3,
+    borderColor: '#DDD6FE',
+  },
+  tasbihTapButtonDone: {
+    backgroundColor: '#059669',
+    borderColor: '#A7F3D0',
+  },
+  tasbihCountBig: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 28,
+    color: '#FFFFFF',
+    lineHeight: 32,
+  },
+  tasbihCountBigDone: {
+    color: '#FFFFFF',
+  },
+  tasbihTargetSub: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.85)',
+  },
+  tasbihTapHint: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 8,
+    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: 0.8,
+    marginTop: 2,
+  },
+  tasbihSideControls: {
+    flex: 1,
+    marginLeft: 18,
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  tasbihResetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 4,
+  },
+  tasbihResetText: {
+    fontSize: 12,
+    fontFamily: FONTS.sansSemiBold,
+    color: COLORS.textSecondary,
+  },
+  tasbihCompleteBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    gap: 4,
+  },
+  tasbihCompleteBadgeText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansBold,
+    color: '#059669',
+  },
+  tasbihRemainingBadge: {
+    backgroundColor: '#F3E8FF',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E9D5FF',
+  },
+  tasbihRemainingText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansSemiBold,
+    color: '#7C3AED',
+  },
 });
+
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -9,28 +9,30 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AyaraEmblem } from './AyaraEmblem';
 
 interface AyaraLaunchScreenProps {
   onAnimationComplete: () => void;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
   onAnimationComplete,
 }) => {
-  // Animation drivers
-  const backdropGlow = useRef(new Animated.Value(0)).current;
-  const emblemScale = useRef(new Animated.Value(0.85)).current;
-  const emblemOpacity = useRef(new Animated.Value(0)).current;
-  const wordmarkTranslateY = useRef(new Animated.Value(18)).current;
-  const wordmarkOpacity = useRef(new Animated.Value(0)).current;
-  const subtitleOpacity = useRef(new Animated.Value(0)).current;
-  const shimmerTranslateX = useRef(new Animated.Value(-width * 0.8)).current;
-  const shimmerOpacity = useRef(new Animated.Value(0)).current;
-  const screenFadeOut = useRef(new Animated.Value(1)).current;
-  const screenScale = useRef(new Animated.Value(1)).current;
+  // Animation drivers using useState to guarantee stable instances without render-time ref access
+  const [backdropGlow] = useState(() => new Animated.Value(0));
+  const [emblemScale] = useState(() => new Animated.Value(0.75));
+  const [emblemOpacity] = useState(() => new Animated.Value(0));
+  const [wordmarkTranslateY] = useState(() => new Animated.Value(22));
+  const [wordmarkOpacity] = useState(() => new Animated.Value(0));
+  const [subtitleOpacity] = useState(() => new Animated.Value(0));
+  const [shimmerTranslateX] = useState(() => new Animated.Value(-width * 0.8));
+  const [shimmerOpacity] = useState(() => new Animated.Value(0));
+  const [screenFadeOut] = useState(() => new Animated.Value(1));
+  const [screenScale] = useState(() => new Animated.Value(1));
+  const [sparkleBounce] = useState(() => new Animated.Value(0));
 
   const [hasCompleted, setHasCompleted] = useState(false);
 
@@ -43,7 +45,6 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
         if (isCancelled) return;
 
         if (reduceMotion) {
-          // Simplified, tranquil fade for reduced motion users
           Animated.sequence([
             Animated.parallel([
               Animated.timing(emblemOpacity, {
@@ -77,66 +78,71 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
           return;
         }
 
-        // Full cinematic animation sequence (total ~2.4 seconds)
+        // Full cheerful cinematic animation sequence (~2.2 seconds)
         Animated.sequence([
-          // Phase 1: Atmospheric ambient glow breathes in
+          // Phase 1: Playful radiant glow & cheerful bouncy emblem entry
           Animated.parallel([
             Animated.timing(backdropGlow, {
+              toValue: 1,
+              duration: 750,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }),
+            Animated.timing(emblemOpacity, {
               toValue: 1,
               duration: 800,
               easing: Easing.out(Easing.cubic),
               useNativeDriver: true,
             }),
-            // Emblem light emergence
-            Animated.timing(emblemOpacity, {
-              toValue: 1,
-              duration: 900,
-              easing: Easing.out(Easing.cubic),
-              useNativeDriver: true,
-            }),
             Animated.timing(emblemScale, {
               toValue: 1,
-              duration: 1100,
-              easing: Easing.out(Easing.back(1.2)),
+              duration: 950,
+              easing: Easing.out(Easing.back(1.5)), // Joyful spring bounce
+              useNativeDriver: true,
+            }),
+            Animated.timing(sparkleBounce, {
+              toValue: 1,
+              duration: 1000,
+              easing: Easing.out(Easing.elastic(1.2)),
               useNativeDriver: true,
             }),
           ]),
 
-          // Phase 2: Wordmark & subtitle rise and fade in
+          // Phase 2: Wordmark & Playful Tagline Rise
           Animated.parallel([
             Animated.timing(wordmarkOpacity, {
               toValue: 1,
-              duration: 600,
+              duration: 550,
               easing: Easing.out(Easing.cubic),
               useNativeDriver: true,
             }),
             Animated.timing(wordmarkTranslateY, {
               toValue: 0,
-              duration: 600,
-              easing: Easing.out(Easing.cubic),
+              duration: 550,
+              easing: Easing.out(Easing.back(1.2)),
               useNativeDriver: true,
             }),
             Animated.timing(subtitleOpacity, {
               toValue: 1,
-              duration: 700,
-              delay: 150,
+              duration: 650,
+              delay: 100,
               easing: Easing.out(Easing.cubic),
               useNativeDriver: true,
             }),
           ]),
 
-          // Phase 3: Restrained lavender shimmer sweep across the emblem
+          // Phase 3: Playful Golden Shimmer sweep across the emblem
           Animated.parallel([
             Animated.sequence([
               Animated.timing(shimmerOpacity, {
-                toValue: 0.85,
-                duration: 200,
+                toValue: 0.9,
+                duration: 220,
                 useNativeDriver: true,
               }),
               Animated.timing(shimmerOpacity, {
                 toValue: 0,
-                duration: 400,
-                delay: 200,
+                duration: 380,
+                delay: 180,
                 useNativeDriver: true,
               }),
             ]),
@@ -149,19 +155,19 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
           ]),
 
           // Brief contemplation hold
-          Animated.delay(350),
+          Animated.delay(300),
 
-          // Phase 4: Seamless cinematic transition to Home screen
+          // Phase 4: Seamless transition to the Home screen
           Animated.parallel([
             Animated.timing(screenFadeOut, {
               toValue: 0,
-              duration: 450,
+              duration: 400,
               easing: Easing.inOut(Easing.cubic),
               useNativeDriver: true,
             }),
             Animated.timing(screenScale, {
-              toValue: 1.04,
-              duration: 450,
+              toValue: 1.05,
+              duration: 400,
               easing: Easing.out(Easing.quad),
               useNativeDriver: true,
             }),
@@ -174,20 +180,32 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
         });
       })
       .catch(() => {
-        // Fallback
         onAnimationComplete();
       });
 
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [
+    backdropGlow,
+    emblemOpacity,
+    emblemScale,
+    onAnimationComplete,
+    screenFadeOut,
+    screenScale,
+    shimmerOpacity,
+    shimmerTranslateX,
+    sparkleBounce,
+    subtitleOpacity,
+    wordmarkOpacity,
+    wordmarkTranslateY,
+  ]);
 
   const handleSkip = () => {
     if (hasCompleted) return;
     Animated.timing(screenFadeOut, {
       toValue: 0,
-      duration: 250,
+      duration: 200,
       useNativeDriver: true,
     }).start(() => {
       setHasCompleted(true);
@@ -213,17 +231,33 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
         activeOpacity={1}
         onPress={handleSkip}
       >
-        {/* Atmospheric Radial Glow behind Emblem */}
+        {/* Playful Radiant Multi-Tone Halo Glow behind Emblem */}
         <Animated.View
           style={[
-            styles.ambientGlow,
+            styles.sunbeamGlow,
             {
               opacity: backdropGlow,
               transform: [
                 {
                   scale: backdropGlow.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.75, 1.15],
+                    outputRange: [0.65, 1.12],
+                  }),
+                },
+              ],
+            },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.lavenderGlow,
+            {
+              opacity: backdropGlow,
+              transform: [
+                {
+                  scale: backdropGlow.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.8, 1.25],
                   }),
                 },
               ],
@@ -231,9 +265,9 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
           ]}
         />
 
-        {/* Center Container */}
+        {/* Center Box */}
         <View style={styles.centerBox}>
-          {/* Emblem with Light Emergence */}
+          {/* Emblem with Cheerful Light Emergence */}
           <Animated.View
             style={[
               styles.emblemWrapper,
@@ -243,9 +277,60 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
               },
             ]}
           >
-            <AyaraEmblem size={200} />
+            <AyaraEmblem size={210} />
 
-            {/* Lavender Shimmer Light Sweep */}
+            {/* Playful Floating Sparkle Badges */}
+            <Animated.View
+              style={[
+                styles.floatingSparkleTopRight,
+                {
+                  opacity: emblemOpacity,
+                  transform: [
+                    {
+                      scale: sparkleBounce.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 1],
+                      }),
+                    },
+                    {
+                      translateY: sparkleBounce.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [10, -4],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <Ionicons name="sparkles" size={20} color="#F59E0B" />
+            </Animated.View>
+
+            <Animated.View
+              style={[
+                styles.floatingSparkleBottomLeft,
+                {
+                  opacity: emblemOpacity,
+                  transform: [
+                    {
+                      scale: sparkleBounce.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 1],
+                      }),
+                    },
+                    {
+                      translateY: sparkleBounce.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [-10, 2],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <Ionicons name="sparkles" size={16} color="#8B5CF6" />
+            </Animated.View>
+
+            {/* Radiant Shimmer Bar */}
             <Animated.View
               pointerEvents="none"
               style={[
@@ -271,11 +356,19 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
               },
             ]}
           >
-            <Text style={styles.wordmarkText}>AYARA</Text>
-            <Text style={styles.arabicSubText}>آيَــارَى</Text>
+            <View style={styles.wordmarkRow}>
+              <Text style={styles.wordmarkText}>AYARA</Text>
+              <Ionicons
+                name="sparkles"
+                size={14}
+                color="#F59E0B"
+                style={styles.wordmarkSparkle}
+              />
+            </View>
+            <Text style={styles.arabicSubText}>آيَـــارَى</Text>
           </Animated.View>
 
-          {/* Subtitle Tagline */}
+          {/* Playful Tagline Pill */}
           <Animated.View
             style={[
               styles.subtitleWrapper,
@@ -284,16 +377,15 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
               },
             ]}
           >
-            <View style={styles.dividerDotRow}>
-              <View style={styles.dividerLine} />
-              <View style={styles.diamondDot} />
-              <View style={styles.dividerLine} />
+            <View style={styles.taglinePill}>
+              <View style={styles.taglineDot} />
+              <Text style={styles.subtitleText}>NOBLE QURAN COMPANION</Text>
+              <View style={styles.taglineDot} />
             </View>
-            <Text style={styles.subtitleText}>THE NOBLE QURAN COMPANION</Text>
           </Animated.View>
         </View>
 
-        {/* Bottom subtle brand accent */}
+        {/* Bottom Playful Divine Blessing */}
         <Animated.View
           style={[
             styles.bottomFooter,
@@ -302,7 +394,9 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
             },
           ]}
         >
-          <Text style={styles.footerArabic}>بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</Text>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerArabic}>بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</Text>
+          </View>
         </Animated.View>
       </TouchableOpacity>
     </Animated.View>
@@ -312,7 +406,7 @@ export const AyaraLaunchScreen: React.FC<AyaraLaunchScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: '#0D0714', // Exact match with native splash background
+    backgroundColor: '#FFFFFF', // Bright, crisp, clean white background
     zIndex: 99999,
     justifyContent: 'center',
     alignItems: 'center',
@@ -324,19 +418,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  ambientGlow: {
+  sunbeamGlow: {
     position: 'absolute',
-    width: 380,
-    height: 380,
-    borderRadius: 190,
-    backgroundColor: '#3B1669',
-    opacity: 0.35,
-    // Radial diffusion effect
+    width: 340,
+    height: 340,
+    borderRadius: 170,
+    backgroundColor: '#FEF3C7',
+    opacity: 0.65,
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 50,
+    elevation: 10,
+  },
+  lavenderGlow: {
+    position: 'absolute',
+    width: 420,
+    height: 420,
+    borderRadius: 210,
+    backgroundColor: '#EDE9FE',
+    opacity: 0.55,
     shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.45,
-    shadowRadius: 60,
-    elevation: 20,
+    shadowOpacity: 0.25,
+    shadowRadius: 65,
+    elevation: 8,
   },
   centerBox: {
     alignItems: 'center',
@@ -344,81 +450,114 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emblemWrapper: {
-    width: 220,
-    height: 220,
+    width: 230,
+    height: 230,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  floatingSparkleTopRight: {
+    position: 'absolute',
+    top: 14,
+    right: 22,
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+  },
+  floatingSparkleBottomLeft: {
+    position: 'absolute',
+    bottom: 22,
+    left: 20,
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+  },
   shimmerBar: {
     position: 'absolute',
-    width: 60,
-    height: 340,
-    backgroundColor: 'rgba(237, 233, 254, 0.4)',
-    shadowColor: '#C4B5FD',
+    width: 65,
+    height: 350,
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    shadowColor: '#FBBF24',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 16,
+    shadowOpacity: 0.6,
+    shadowRadius: 18,
   },
   wordmarkWrapper: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 18,
+  },
+  wordmarkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   wordmarkText: {
     fontFamily: 'PlusJakartaSans_700Bold',
-    fontSize: 32,
-    color: '#FDFBFF',
-    letterSpacing: 9,
+    fontSize: 34,
+    color: '#2E1065', // Rich, deep royal violet
+    letterSpacing: 8,
     textTransform: 'uppercase',
     textAlign: 'center',
   },
+  wordmarkSparkle: {
+    marginLeft: 2,
+    marginTop: -14,
+  },
   arabicSubText: {
     fontFamily: 'NotoNaskhArabic_600SemiBold',
-    fontSize: 18,
-    color: '#DDD6FE',
+    fontSize: 20,
+    color: '#7C3AED', // Bright vibrant violet
     letterSpacing: 4,
-    marginTop: 2,
-    opacity: 0.85,
+    marginTop: 3,
+    textAlign: 'center',
   },
   subtitleWrapper: {
     alignItems: 'center',
-    marginTop: 14,
+    marginTop: 12,
   },
-  dividerDotRow: {
+  taglinePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
-    opacity: 0.4,
+    backgroundColor: '#F3E8FF',
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
   },
-  dividerLine: {
-    width: 32,
-    height: 1,
-    backgroundColor: '#C4B5FD',
-  },
-  diamondDot: {
+  taglineDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#EDE9FE',
+    backgroundColor: '#F59E0B',
+    marginHorizontal: 7,
   },
   subtitleText: {
-    fontFamily: 'PlusJakartaSans_500Medium',
-    fontSize: 11,
-    color: '#C4B5FD',
-    letterSpacing: 3,
+    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontSize: 10,
+    color: '#6D28D9',
+    letterSpacing: 2.2,
     textTransform: 'uppercase',
-    opacity: 0.9,
   },
   bottomFooter: {
     position: 'absolute',
-    bottom: 44,
+    bottom: 42,
     alignItems: 'center',
   },
+  footerRow: {
+    backgroundColor: '#FAF5FF',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#F3E8FF',
+  },
   footerArabic: {
-    fontFamily: 'NotoNaskhArabic_400Regular',
-    fontSize: 14,
-    color: '#8B5CF6',
-    opacity: 0.6,
+    fontFamily: 'NotoNaskhArabic_500Medium',
+    fontSize: 13,
+    color: '#7C3AED',
+    opacity: 0.85,
   },
 });

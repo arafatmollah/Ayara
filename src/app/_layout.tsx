@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -42,17 +42,16 @@ export default function RootLayout() {
 
   // Track launch animation completion once per app lifecycle
   const [isLaunchDone, setIsLaunchDone] = useState(false);
-  const [isNativeSplashHidden, setIsNativeSplashHidden] = useState(false);
+  const isNativeSplashHiddenRef = useRef(false);
 
   const fontsLoaded = Boolean(arabicLoaded && sansLoaded);
 
   useEffect(() => {
-    if (fontsLoaded && !isNativeSplashHidden) {
-      // Hide native splash screen as soon as custom animated launch screen mounts
+    if (fontsLoaded && !isNativeSplashHiddenRef.current) {
+      isNativeSplashHiddenRef.current = true;
       SplashScreen.hideAsync().catch(() => {});
-      setIsNativeSplashHidden(true);
     }
-  }, [fontsLoaded, isNativeSplashHidden]);
+  }, [fontsLoaded]);
 
   const handleLaunchComplete = useCallback(() => {
     setIsLaunchDone(true);
@@ -65,7 +64,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider style={styles.rootContainer}>
       <AudioProvider>
-        <StatusBar style={isLaunchDone ? 'dark' : 'light'} />
+        <StatusBar style="dark" />
         <Stack
           screenOptions={{
             headerStyle: { backgroundColor: COLORS.surface },
@@ -77,6 +76,27 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="surah/[id]"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          />
+          <Stack.Screen
+            name="trainer"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
+            name="memorize"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_right',
+            }}
+          />
+          <Stack.Screen
+            name="learn"
             options={{
               headerShown: false,
               animation: 'slide_from_right',
@@ -97,6 +117,6 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: '#0D0714', // Exact match with native splash background to prevent white flash
+    backgroundColor: '#FFFFFF', // Clean white background for splash and launch
   },
 });

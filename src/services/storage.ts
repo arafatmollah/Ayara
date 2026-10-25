@@ -7,18 +7,31 @@ import {
   LastReadItem,
   PersonalStats,
   ReaderSettings,
+  SavedWordItem,
   TimeSegment,
   UserProfile,
+  VerseHifzRecord,
+  MurajahReminder,
+  HifzStrength,
+  DailyMissionId,
+  DailyMissionItem,
+  DailyMissionsState,
+  LearningPathProgress,
 } from '../types/quran';
 
 const USER_PROFILE_KEY = '@quran_user_profile';
 const BOOKMARKS_KEY = '@quran_bookmarks';
+const SAVED_VOCABULARY_KEY = '@quran_saved_vocabulary';
+const HIFZ_RECORDS_KEY = '@quran_hifz_records';
+const MURAJAH_REMINDERS_KEY = '@quran_murajah_reminders';
 const LAST_READ_KEY = '@quran_last_read';
 const RECENT_HISTORY_KEY = '@quran_recent_history';
 const UNIQUE_AYAHS_KEY = '@quran_read_ayahs';
 const SETTINGS_KEY = '@quran_reader_settings';
 const GOAL_KEY = '@quran_daily_goal';
 const HISTORY_KEY = '@quran_activity_history'; // Record<dateStr, { verses: number, hasanat: number, timeSeconds?: number }>
+const DAILY_MISSIONS_KEY_PREFIX = '@quran_daily_missions_';
+const LEARNING_PATH_PROGRESS_KEY = '@quran_learning_path_progress';
 
 export interface DayHistoryRecord {
   verses: number;
@@ -229,6 +242,9 @@ export async function recordVersesRead(count: number = 1, hasanatCount?: number)
     };
 
     await AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    try {
+      await incrementMissionProgress('read_verses', count, today);
+    } catch {}
     return getDailyProgress();
   } catch {
     return getDailyProgress();
@@ -411,3 +427,459 @@ export async function getTimeSegmentStats(segment: TimeSegment): Promise<Persona
     streak: progress.streakDays,
   };
 }
+
+// ----------------- Vocabulary Collection -----------------
+
+export async function getSavedVocabulary(): Promise<SavedWordItem[]> {
+  try {
+    const raw = await AsyncStorage.getItem(SAVED_VOCABULARY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function isVocabularyWordSaved(id: string): Promise<boolean> {
+  try {
+    const items = await getSavedVocabulary();
+    return items.some((item) => item.id === id);
+  } catch {
+    return false;
+  }
+}
+
+export async function toggleSaveVocabularyWord(item: SavedWordItem): Promise<boolean> {
+  try {
+    const current = await getSavedVocabulary();
+    const existingIndex = current.findIndex((w) => w.id === item.id);
+    let updated: SavedWordItem[];
+    let isNowSaved: boolean;
+
+    if (existingIndex >= 0) {
+      updated = current.filter((w) => w.id !== item.id);
+      isNowSaved = false;
+    } else {
+      const defaultSRS: Partial<SavedWordItem> = {
+        repetition: 0,
+        interval: 1,
+        easeFactor: 2.5,
+        nextReviewDate: Date.now(),
+        reviewCount: 0,
+        correctCount: 0,
+        incorrectCount: 0,
+        accuracy: 0,
+        status: 'learning',
+        mastered: false,
+      };
+      const wordWithSRS: SavedWordItem = {
+        ...defaultSRS,
+        ...item,
+      };
+      updated = [wordWithSRS, ...current];
+      isNowSaved = true;
+    }
+
+    await AsyncStorage.setItem(SAVED_VOCABULARY_KEY, JSON.stringify(updated));
+    if (isNowSaved) {
+      try {
+        await incrementMissionProgress('learn_words', 1);
+      } catch {}
+    }
+    return isNowSaved;
+  } catch {
+    return false;
+  }
+}
+
+export async function removeVocabularyWord(id: string): Promise<boolean> {
+  try {
+    const current = await getSavedVocabulary();
+    const updated = current.filter((w) => w.id !== id);
+    await AsyncStorage.setItem(SAVED_VOCABULARY_KEY, JSON.stringify(updated));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function toggleWordMastered(id: string): Promise<boolean> {
+  try {
+    const current = await getSavedVocabulary();
+    const updated = current.map((w) => {
+      if (w.id === id) {
+        const nextMastered = !w.mastered;
+        return {
+          ...w,
+          mastered: nextMastered,
+          status: nextMastered ? ('mastered' as const) : ('reviewing' as const),
+        };
+      }
+      return w;
+    });
+    await AsyncStorage.setItem(SAVED_VOCABULARY_KEY, JSON.stringify(updated));
+    const target = updated.find((w) => w.id === id);
+    return !!target?.mastered;
+  } catch {
+    return false;
+  }
+}
+
+export async function updateVocabularyWordSRS(updatedWord: SavedWordItem): Promise<boolean> {
+  try {
+    const current = await getSavedVocabulary();
+    const existingIndex = current.findIndex((w) => w.id === updatedWord.id);
+    let nextList: SavedWordItem[];
+    if (existingIndex >= 0) {
+      nextList = current.map((w) => (w.id === updatedWord.id ? updatedWord : w));
+    } else {
+      nextList = [updatedWord, ...current];
+    }
+    await AsyncStorage.setItem(SAVED_VOCABULARY_KEY, JSON.stringify(nextList));
+    try {
+      await incrementMissionProgress('review_vocab', 1);
+    } catch {}
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function batchUpdateVocabularyWords(updatedWords: SavedWordItem[]): Promise<boolean> {
+  try {
+    const current = await getSavedVocabulary();
+    const map = new Map<string, SavedWordItem>();
+    current.forEach((w) => map.set(w.id, w));
+    updatedWords.forEach((w) => map.set(w.id, w));
+    const nextList = Array.from(map.values());
+    await AsyncStorage.setItem(SAVED_VOCABULARY_KEY, JSON.stringify(nextList));
+    try {
+      await incrementMissionProgress('review_vocab', updatedWords.length);
+    } catch {}
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function seedStarterVocabulary(): Promise<SavedWordItem[]> {
+  try {
+    const { STARTER_QURAN_VOCABULARY } = await import('./srsEngine');
+    const current = await getSavedVocabulary();
+    const currentIds = new Set(current.map((w) => w.id));
+    const toAdd = STARTER_QURAN_VOCABULARY.filter((w) => !currentIds.has(w.id));
+    const combined = [...current, ...toAdd];
+    await AsyncStorage.setItem(SAVED_VOCABULARY_KEY, JSON.stringify(combined));
+    return combined;
+  } catch {
+    return [];
+  }
+}
+
+// ----------------- Memorization (Hifz & Muraja'ah) -----------------
+
+export async function getHifzRecords(): Promise<Record<string, VerseHifzRecord>> {
+  try {
+    const raw = await AsyncStorage.getItem(HIFZ_RECORDS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function saveVerseHifzAssessment(
+  surah: number,
+  ayah: number,
+  strength: HifzStrength
+): Promise<VerseHifzRecord> {
+  const key = `${surah}:${ayah}`;
+  const allRecords = await getHifzRecords();
+  const existing = allRecords[key];
+
+  const testCount = (existing?.testCount || 0) + 1;
+  const isFluent = strength === 'fluent';
+  const fluentCount = (existing?.fluentCount || 0) + (isFluent ? 1 : 0);
+  const consecutiveFluent = isFluent ? (existing?.consecutiveFluent || 0) + 1 : 0;
+
+  const record: VerseHifzRecord = {
+    id: key,
+    surah,
+    ayah,
+    strength,
+    lastTested: Date.now(),
+    testCount,
+    fluentCount,
+    consecutiveFluent,
+  };
+
+  allRecords[key] = record;
+  await AsyncStorage.setItem(HIFZ_RECORDS_KEY, JSON.stringify(allRecords));
+  return record;
+}
+
+export async function getMurajahReminders(): Promise<MurajahReminder[]> {
+  try {
+    const raw = await AsyncStorage.getItem(MURAJAH_REMINDERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveMurajahReminder(reminder: MurajahReminder): Promise<void> {
+  try {
+    const reminders = await getMurajahReminders();
+    const existingIndex = reminders.findIndex((r) => r.id === reminder.id);
+    let nextList: MurajahReminder[];
+    if (existingIndex >= 0) {
+      nextList = reminders.map((r) => (r.id === reminder.id ? reminder : r));
+    } else {
+      nextList = [reminder, ...reminders];
+    }
+    await AsyncStorage.setItem(MURAJAH_REMINDERS_KEY, JSON.stringify(nextList));
+  } catch {}
+}
+
+export async function removeMurajahReminder(id: string): Promise<void> {
+  try {
+    const reminders = await getMurajahReminders();
+    const nextList = reminders.filter((r) => r.id !== id);
+    await AsyncStorage.setItem(MURAJAH_REMINDERS_KEY, JSON.stringify(nextList));
+  } catch {}
+}
+
+export async function markMurajahCompleted(id: string): Promise<void> {
+  try {
+    const reminders = await getMurajahReminders();
+    const now = Date.now();
+    const nextList = reminders.map((r) => {
+      if (r.id === id) {
+        return {
+          ...r,
+          lastReviewedDate: now,
+          nextReviewDate: now + (r.frequencyDays || 1) * 24 * 60 * 60 * 1000,
+        };
+      }
+      return r;
+    });
+    await AsyncStorage.setItem(MURAJAH_REMINDERS_KEY, JSON.stringify(nextList));
+  } catch {}
+}
+
+// ----------------- Daily Learning Missions -----------------
+
+export interface RawDailyMissionsStore {
+  read_verses?: number;
+  learn_words?: number;
+  grammar_exercise?: number;
+  review_vocab?: number;
+}
+
+export async function getDailyMissions(dateStr?: string): Promise<DailyMissionsState> {
+  const targetDate = dateStr || getTodayDateStr();
+  const storageKey = `${DAILY_MISSIONS_KEY_PREFIX}${targetDate}`;
+
+  let rawData: RawDailyMissionsStore = {};
+  try {
+    const raw = await AsyncStorage.getItem(storageKey);
+    if (raw) rawData = JSON.parse(raw);
+  } catch {}
+
+  // Sync verses read from history
+  const history = await getActivityHistory();
+  const todayHistory = history[targetDate];
+  const versesRead = Math.max(rawData.read_verses || 0, todayHistory?.verses || 0);
+
+  // Default target for verses is 5 or user's daily goal
+  const dailyGoal = await getDailyGoal();
+  const verseTarget = Math.max(5, dailyGoal);
+
+  // Check saved words or deck to get context for reviews
+  const savedVocab = await getSavedVocabulary();
+  const now = Date.now();
+  const dueCount = savedVocab.filter((w) => (w.nextReviewDate || 0) <= now).length;
+  const reviewTarget = Math.min(5, Math.max(1, dueCount || 5));
+
+  const wordsLearned = rawData.learn_words || 0;
+  const grammarExercise = rawData.grammar_exercise || 0;
+  const reviewsDone = rawData.review_vocab || 0;
+
+  const missions: DailyMissionItem[] = [
+    {
+      id: 'read_verses',
+      title: `Read ${verseTarget} Verses`,
+      subtitle: 'Recitation & Istiqamah',
+      category: 'worship',
+      target: verseTarget,
+      current: versesRead,
+      completed: versesRead >= verseTarget,
+      unit: 'verses',
+      icon: 'book-outline',
+      actionLabel: 'Recite',
+      route: '/(tabs)/reading',
+    },
+    {
+      id: 'learn_words',
+      title: 'Learn 3 Words',
+      subtitle: 'Quranic Vocabulary',
+      category: 'learning',
+      target: 3,
+      current: wordsLearned,
+      completed: wordsLearned >= 3,
+      unit: 'words',
+      icon: 'bulb-outline',
+      actionLabel: 'Explore',
+      route: '/(tabs)/saved',
+    },
+    {
+      id: 'grammar_exercise',
+      title: '1 Grammar Exercise',
+      subtitle: 'Language & Structure',
+      category: 'learning',
+      target: 1,
+      current: grammarExercise,
+      completed: grammarExercise >= 1,
+      unit: 'exercise',
+      icon: 'school-outline',
+      actionLabel: 'Practice',
+    },
+    {
+      id: 'review_vocab',
+      title: 'Review Vocabulary',
+      subtitle: dueCount > 0 ? `${dueCount} cards due for revision` : 'Daily Spaced Repetition',
+      category: 'learning',
+      target: reviewTarget,
+      current: reviewsDone,
+      completed: reviewsDone >= reviewTarget,
+      unit: 'reviews',
+      icon: 'sync-outline',
+      actionLabel: 'Review',
+      route: '/trainer',
+    },
+  ];
+
+  const completedCount = missions.filter((m) => m.completed).length;
+  const allCompleted = completedCount === missions.length;
+
+  return {
+    date: targetDate,
+    missions,
+    allCompleted,
+    completedCount,
+    totalCount: missions.length,
+  };
+}
+
+export async function incrementMissionProgress(
+  id: DailyMissionId,
+  amount: number = 1,
+  dateStr?: string
+): Promise<DailyMissionsState> {
+  const targetDate = dateStr || getTodayDateStr();
+  const storageKey = `${DAILY_MISSIONS_KEY_PREFIX}${targetDate}`;
+
+  let currentRaw: RawDailyMissionsStore = {};
+  try {
+    const raw = await AsyncStorage.getItem(storageKey);
+    if (raw) currentRaw = JSON.parse(raw);
+  } catch {}
+
+  const currentVal = currentRaw[id] || 0;
+  currentRaw[id] = currentVal + amount;
+
+  try {
+    await AsyncStorage.setItem(storageKey, JSON.stringify(currentRaw));
+  } catch {}
+
+  return getDailyMissions(targetDate);
+}
+
+export async function setMissionProgress(
+  id: DailyMissionId,
+  value: number,
+  dateStr?: string
+): Promise<DailyMissionsState> {
+  const targetDate = dateStr || getTodayDateStr();
+  const storageKey = `${DAILY_MISSIONS_KEY_PREFIX}${targetDate}`;
+
+  let currentRaw: RawDailyMissionsStore = {};
+  try {
+    const raw = await AsyncStorage.getItem(storageKey);
+    if (raw) currentRaw = JSON.parse(raw);
+  } catch {}
+
+  currentRaw[id] = value;
+
+  try {
+    await AsyncStorage.setItem(storageKey, JSON.stringify(currentRaw));
+  } catch {}
+
+  return getDailyMissions(targetDate);
+}
+
+export async function recordWordExplored(): Promise<DailyMissionsState> {
+  return incrementMissionProgress('learn_words', 1);
+}
+
+// ----------------- Quranic Arabic Learning Paths -----------------
+
+export async function getLearningPathProgress(): Promise<LearningPathProgress> {
+  try {
+    const raw = await AsyncStorage.getItem(LEARNING_PATH_PROGRESS_KEY);
+    if (!raw) {
+      return {
+        completedLessonIds: [],
+        lastUpdated: Date.now(),
+      };
+    }
+    return JSON.parse(raw);
+  } catch {
+    return {
+      completedLessonIds: [],
+      lastUpdated: Date.now(),
+    };
+  }
+}
+
+export async function markLessonCompleted(
+  courseId: string,
+  lessonId: string
+): Promise<LearningPathProgress> {
+  try {
+    const current = await getLearningPathProgress();
+    const isAlreadyCompleted = current.completedLessonIds.includes(lessonId);
+    const updatedIds = isAlreadyCompleted
+      ? current.completedLessonIds
+      : [...current.completedLessonIds, lessonId];
+
+    const updated: LearningPathProgress = {
+      completedLessonIds: updatedIds,
+      lastActiveCourseId: courseId,
+      lastActiveLessonId: lessonId,
+      lastUpdated: Date.now(),
+    };
+
+    await AsyncStorage.setItem(LEARNING_PATH_PROGRESS_KEY, JSON.stringify(updated));
+
+    // Also count toward daily learning mission
+    try {
+      await incrementMissionProgress('grammar_exercise', 1);
+    } catch {}
+
+    return updated;
+  } catch {
+    return {
+      completedLessonIds: [lessonId],
+      lastActiveCourseId: courseId,
+      lastActiveLessonId: lessonId,
+      lastUpdated: Date.now(),
+    };
+  }
+}
+
+export async function isLessonCompleted(lessonId: string): Promise<boolean> {
+  const current = await getLearningPathProgress();
+  return current.completedLessonIds.includes(lessonId);
+}
+
+
+

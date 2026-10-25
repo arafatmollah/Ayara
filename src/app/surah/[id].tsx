@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -27,8 +27,14 @@ import {
   DEFAULT_SETTINGS,
 } from '../../services/storage';
 import { useQuranAudio } from '../../services/audioContext';
-import { AyahData, BookmarkItem, ReaderSettings } from '../../types/quran';
+import { AyahData, BookmarkItem, ReaderSettings, WordData, WordLearningDetails } from '../../types/quran';
 import { AyahItem } from '../../components/AyahItem';
+import { WordLearningModal } from '../../components/WordLearningModal';
+import { getWordLearningDetails } from '../../services/learningData';
+
+const VIEWABILITY_CONFIG = {
+  itemVisiblePercentThreshold: 75,
+};
 
 export default function SurahReaderScreen() {
   const params = useLocalSearchParams<{ id: string; targetAyah?: string }>();
@@ -41,6 +47,10 @@ export default function SurahReaderScreen() {
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [focusMode, setFocusMode] = useState(false);
+  const [selectedWordDetails, setSelectedWordDetails] = useState<WordLearningDetails | null>(null);
+  const [isWordModalVisible, setIsWordModalVisible] = useState(false);
+  const [activeWordAyah, setActiveWordAyah] = useState<number | null>(null);
+  const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
   const flatListRef = useRef<FlatList<AyahData>>(null);
 
   const { currentSurah, currentAyah, isPlaying, playAyah, togglePlay } = useQuranAudio();
@@ -104,7 +114,7 @@ export default function SurahReaderScreen() {
     }
   }, [targetAyah, ayahs]);
 
-  const handleToggleBookmark = async (item: AyahData) => {
+  const handleToggleBookmark = useCallback(async (item: AyahData) => {
     if (!surahMeta) return;
     const bookmarkItem: BookmarkItem = {
       id: `${item.surah}:${item.ayah}`,
@@ -127,7 +137,7 @@ export default function SurahReaderScreen() {
       }
       return next;
     });
-  };
+  }, [surahMeta]);
 
   const isCurrentSurahPlaying = currentSurah === surahNumber && isPlaying;
 
@@ -166,32 +176,59 @@ export default function SurahReaderScreen() {
     }));
   };
 
-  // Record read progress and current reading position dynamically
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: Array<{ item: AyahData }> }) => {
-    if (viewableItems.length > 0 && surahMeta) {
-      const top = viewableItems[0].item;
-      if (top) {
-        setLastRead({
-          surah: surahNumber,
-          ayah: top.ayah,
-          surahName: surahMeta.en,
-          surahNameAr: surahMeta.ar,
-          timestamp: Date.now(),
+  const handleWordSelect = (word: WordData, wordIndex: number, ayah: AyahData) => {
+    const details = getWordLearningDetails(ayah.surah, ayah.ayah, wordIndex, word);
+    setSelectedWordDetails(details);
+    setActiveWordAyah(ayah.ayah);
+    setActiveWordIndex(wordIndex);
+    setIsWordModalVisible(true);
+  };
+
+  const handleNavigateToOccurrenceAyah = (targetSurah: number, targetAyah: number) => {
+    if (targetSurah === surahNumber) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: Math.max(0, targetAyah - 1),
+          animated: true,
+          viewPosition: 0.1,
         });
-      }
+      }, 200);
+    } else {
+      router.push({
+        pathname: '/surah/[id]',
+        params: {
+          id: targetSurah.toString(),
+          targetAyah: targetAyah.toString(),
+        },
+      });
     }
+  };
 
-    viewableItems.forEach(({ item }) => {
-      if (item && !readAyahsSetRef.current.has(item.ayah)) {
-        readAyahsSetRef.current.add(item.ayah);
-        recordAyahRead(surahNumber, item.ayah);
+  // Record read progress and current reading position dynamically
+  const handleViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: { item: AyahData }[] }) => {
+      if (viewableItems.length > 0 && surahMeta) {
+        const top = viewableItems[0].item;
+        if (top) {
+          setLastRead({
+            surah: surahNumber,
+            ayah: top.ayah,
+            surahName: surahMeta.en,
+            surahNameAr: surahMeta.ar,
+            timestamp: Date.now(),
+          });
+        }
       }
-    });
-  }).current;
 
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 75,
-  }).current;
+      viewableItems.forEach(({ item }) => {
+        if (item && !readAyahsSetRef.current.has(item.ayah)) {
+          readAyahsSetRef.current.add(item.ayah);
+          recordAyahRead(surahNumber, item.ayah);
+        }
+      });
+    },
+    [surahNumber, surahMeta]
+  );
 
   if (!surahMeta) {
     return (
@@ -294,6 +331,30 @@ export default function SurahReaderScreen() {
           </Text>
         </TouchableOpacity>
 
+        {/* Memorization / Hifz Mode */}
+        <TouchableOpacity
+          style={styles.togglePill}
+          onPress={() => {
+            try {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            } catch {}
+            router.push({
+              pathname: '/memorize',
+              params: {
+                surah: surahNumber.toString(),
+                startAyah: '1',
+                endAyah: Math.min(surahMeta?.ayahs || 7, 7).toString(),
+              },
+            });
+          }}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Memorize Surah"
+        >
+          <Ionicons name="sparkles" size={13} color={COLORS.primaryDark} />
+          <Text style={styles.togglePillText}>Hifz</Text>
+        </TouchableOpacity>
+
         {/* Play All Audio */}
         <TouchableOpacity
           style={[styles.playAllPill, isCurrentSurahPlaying && styles.playAllPillActive]}
@@ -394,8 +455,8 @@ export default function SurahReaderScreen() {
             </View>
           );
         }}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={VIEWABILITY_CONFIG}
         renderItem={({ item }) => {
           const isItemPlaying =
             currentSurah === surahNumber && currentAyah === item.ayah && isPlaying;
@@ -411,8 +472,10 @@ export default function SurahReaderScreen() {
               isBookmarked={isItemBookmarked}
               isPlaying={isItemPlaying}
               focusMode={focusMode}
+              selectedWordIndex={activeWordAyah === item.ayah ? activeWordIndex : null}
               onPlay={() => playAyah(surahNumber, item.ayah)}
               onToggleBookmark={() => handleToggleBookmark(item)}
+              onWordSelect={handleWordSelect}
             />
           );
         }}
@@ -424,6 +487,18 @@ export default function SurahReaderScreen() {
             animated: true,
           });
         }}
+      />
+
+      {/* Interactive Word Learning Modal */}
+      <WordLearningModal
+        visible={isWordModalVisible}
+        wordDetails={selectedWordDetails}
+        onClose={() => {
+          setIsWordModalVisible(false);
+          setActiveWordAyah(null);
+          setActiveWordIndex(null);
+        }}
+        onNavigateToAyah={handleNavigateToOccurrenceAyah}
       />
     </SafeAreaView>
   );

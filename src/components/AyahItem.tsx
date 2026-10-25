@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, SHADOWS } from '../constants/theme';
-import { AyahData } from '../types/quran';
+import { AyahData, WordData } from '../types/quran';
 
 interface AyahItemProps {
   ayah: AyahData;
@@ -14,8 +14,10 @@ interface AyahItemProps {
   isBookmarked: boolean;
   isPlaying: boolean;
   focusMode?: boolean;
+  selectedWordIndex?: number | null;
   onPlay: () => void;
   onToggleBookmark: () => void;
+  onWordSelect?: (word: WordData, wordIndex: number, ayah: AyahData) => void;
 }
 
 export const AyahItem: React.FC<AyahItemProps> = ({
@@ -27,8 +29,10 @@ export const AyahItem: React.FC<AyahItemProps> = ({
   isBookmarked,
   isPlaying,
   focusMode = false,
+  selectedWordIndex = null,
   onPlay,
   onToggleBookmark,
+  onWordSelect,
 }) => {
   const handleBookmarkPress = () => {
     try {
@@ -42,6 +46,13 @@ export const AyahItem: React.FC<AyahItemProps> = ({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {}
     onPlay();
+  };
+
+  const handleWordPress = (word: WordData, index: number) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    onWordSelect?.(word, index, ayah);
   };
 
   return (
@@ -93,29 +104,73 @@ export const AyahItem: React.FC<AyahItemProps> = ({
         </View>
       </View>
 
-      {/* Spacious Arabic Text */}
+      {/* Spacious Arabic Text with Interactive Words */}
       <View style={styles.arabicContainer}>
-        <Text
-          style={[
-            styles.arabicText,
-            { fontSize, lineHeight: Math.round(fontSize * 2.15) },
-          ]}
-          selectable
-        >
-          {ayah.arabic}
-        </Text>
+        {ayah.words && ayah.words.length > 0 ? (
+          <Text
+            style={[
+              styles.arabicText,
+              { fontSize, lineHeight: Math.round(fontSize * 2.15) },
+            ]}
+          >
+            {ayah.words.map((w, idx) => {
+              const isSelected = selectedWordIndex === idx;
+              return (
+                <Text
+                  key={idx}
+                  onPress={() => handleWordPress(w, idx)}
+                  style={[
+                    styles.arabicWordInteractive,
+                    isSelected && styles.arabicWordSelected,
+                  ]}
+                  suppressHighlighting={false}
+                >
+                  {w.arabic}
+                  {idx < ayah.words!.length - 1 ? ' ' : ''}
+                </Text>
+              );
+            })}
+          </Text>
+        ) : (
+          <Text
+            style={[
+              styles.arabicText,
+              { fontSize, lineHeight: Math.round(fontSize * 2.15) },
+            ]}
+            selectable
+          >
+            {ayah.arabic}
+          </Text>
+        )}
       </View>
 
       {/* Word-by-word Breakdown (if enabled) */}
       {showWbw && ayah.words && ayah.words.length > 0 && (
         <View style={styles.wbwContainer}>
-          {ayah.words.map((w, idx) => (
-            <View key={idx} style={styles.wbwCard}>
-              <Text style={styles.wbwArabic}>{w.arabic}</Text>
-              <Text style={styles.wbwTranslit}>{w.transliteration}</Text>
-              <Text style={styles.wbwEnglish}>{w.english}</Text>
-            </View>
-          ))}
+          {ayah.words.map((w, idx) => {
+            const isSelected = selectedWordIndex === idx;
+            return (
+              <TouchableOpacity
+                key={idx}
+                style={[styles.wbwCard, isSelected && styles.wbwCardSelected]}
+                onPress={() => handleWordPress(w, idx)}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Learn word ${w.arabic}, ${w.english}`}
+              >
+                <Text style={[styles.wbwArabic, isSelected && styles.wbwArabicSelected]}>
+                  {w.arabic}
+                </Text>
+                <Text style={styles.wbwTranslit}>{w.transliteration}</Text>
+                <Text style={styles.wbwEnglish}>{w.english}</Text>
+                {w.rootAr && (
+                  <View style={styles.wbwRootChip}>
+                    <Text style={styles.wbwRootText}>root {w.rootAr}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       )}
 
@@ -265,5 +320,34 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: COLORS.textPrimary,
     lineHeight: 24,
+  },
+  arabicWordInteractive: {
+    color: COLORS.textArabic,
+  },
+  arabicWordSelected: {
+    color: COLORS.primaryDark,
+    backgroundColor: COLORS.primarySurface,
+  },
+  wbwCardSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primarySurface,
+    ...SHADOWS.sm,
+  },
+  wbwArabicSelected: {
+    color: COLORS.primaryDark,
+  },
+  wbwRootChip: {
+    backgroundColor: COLORS.goldSurface,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: COLORS.goldBorder,
+  },
+  wbwRootText: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 9,
+    color: COLORS.goldDark,
   },
 });
