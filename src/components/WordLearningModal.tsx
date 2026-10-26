@@ -21,6 +21,7 @@ interface WordLearningModalProps {
   wordDetails: WordLearningDetails | null;
   onClose: () => void;
   onNavigateToAyah?: (surah: number, ayah: number) => void;
+  onReportWord?: (wordDetails: WordLearningDetails) => void;
 }
 
 type TabType = 'root' | 'grammar' | 'occurrences';
@@ -30,6 +31,7 @@ export const WordLearningModal: React.FC<WordLearningModalProps> = ({
   wordDetails,
   onClose,
   onNavigateToAyah,
+  onReportWord,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('root');
   const [isSaved, setIsSaved] = useState(false);
@@ -144,6 +146,15 @@ export const WordLearningModal: React.FC<WordLearningModalProps> = ({
             </View>
 
             <View style={styles.headerActions}>
+              <TouchableOpacity
+                onPress={() => onReportWord?.(wordDetails)}
+                style={styles.headerActionBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Report issue with this word"
+              >
+                <Ionicons name="flag-outline" size={17} color={COLORS.textSecondary} />
+              </TouchableOpacity>
+
               <TouchableOpacity
                 onPress={handleToggleSave}
                 style={[styles.headerActionBtn, isSaved && styles.headerActionBtnActive]}
@@ -412,7 +423,15 @@ export const WordLearningModal: React.FC<WordLearningModalProps> = ({
               </View>
             )}
 
-            <View style={{ height: 20 }} />
+            {/* Academic & Scholarly Provenance Tag */}
+            <View style={styles.provenanceNotice}>
+              <Ionicons name="shield-checkmark" size={13} color="#059669" />
+              <Text style={styles.provenanceNoticeText}>
+                Corpus Authority: The Quranic Arabic Corpus (Univ. of Leeds) & Classical Lexicons
+              </Text>
+            </View>
+
+            <View style={{ height: 16 }} />
           </ScrollView>
 
           {/* Bottom Save Action Button */}
@@ -954,5 +973,24 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 15,
     color: COLORS.textInverse,
+  },
+  provenanceNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    marginTop: 10,
+    marginHorizontal: 18,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  provenanceNoticeText: {
+    fontSize: 11,
+    fontFamily: FONTS.sansMedium,
+    color: '#065F46',
+    flex: 1,
   },
 });

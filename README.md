@@ -25,7 +25,7 @@ Get the latest APK release directly on your Android device:
 
 | Release | Download Link | Description |
 | :--- | :--- | :--- |
-| **Latest Android APK** | [**Download Ayara.apk (v1.1.0)**](https://github.com/arafatmollah/Ayara/releases/latest/download/Ayara.apk) | Direct standalone Android APK installable on all modern Android devices |
+| **Latest Android APK** | [**Download Ayara.apk (v1.2.0)**](https://github.com/arafatmollah/Ayara/releases/latest/download/Ayara.apk) | Direct standalone Android APK installable on all modern Android devices |
 | **All Releases & Notes** | [**GitHub Releases Archive**](https://github.com/arafatmollah/Ayara/releases) | Full changelog, release notes, and version history |
 | **Web Version** | [**Run in Web Browser**](http://localhost:8081) | Run locally with `npx expo start --web` |
 
@@ -35,7 +35,22 @@ Get the latest APK release directly on your Android device:
 
 ## ✨ Comprehensive Features
 
-### 1. 📖 Interactive Word-by-Word Quran Reader
+### 1. 🛡️ Quran Accuracy & Source Transparency (Foundational Core)
+- **Verified Uthmani Arabic Text & Verse Numbering**: Bundled verified Tanzil Uthmani text (`quran-uthmani` v1.0.2) cross-checked against the King Fahd Complex *Mushaf al-Madinah*. Standard Kufic numbering (6,236 Ayahs across 114 Surahs). Zero generative AI hallucinations in Quranic text.
+- **Clear Sources & Attribution**:
+  - *Translation*: Saheeh International (1997, Dar Abul-Qasim).
+  - *Transliteration*: Standard international phonetics adhering to Tajweed articulation.
+  - *Recitation Audio*: EveryAyah verified audio archive with 5 master Huffaz (Sheikh Mishary Rashid Alafasy, Sheikh AbdulBaset AbdulSamad, Sheikh Maher Al-Muaiqly, Sheikh Abu Bakr Al-Shatri, Sheikh Mahmoud Khalil Al-Husary).
+  - *Morphology & Trilateral Roots*: The Quranic Arabic Corpus (University of Leeds, Dr. Kais Dukes) & Classical Arabic Lexicons (*Ibn Faris*, *al-Raghib al-Isfahani*, *Lisan al-Arab*).
+  - *Hadith-based Virtues*: Kutub al-Sittah citations (*Sahih al-Bukhari*, *Sahih Muslim*, *Jami` at-Tirmidhi*, *Sunan Abi Dawud*) with explicit authenticity grades (Sahih, Hasan, Da'if transparently noted).
+- **Sajdah Tilawah Guidance (سَجَدَاتُ التِّلَاوَةِ)**: Dedicated badges on all 15 Quranic prostration verses with prophetic Du'as (*Sunan Abi Dawud 1414*) and jurisprudence rulings.
+- **Stopping Signs (عَلَامَاتُ الْوَقْفِ) & Typography**: Comprehensive guide explaining all 7 Uthmani Waqf symbols (`مـ`, `لا`, `ج`, `صلى`, `قلى`, `ۛ ... ۛ`, `س`) and ornamental dividers (`۞`, `۝`, `۩`).
+- **Content Inaccuracy Reporting**: 1-tap reporting mechanism from any Ayah, word card, or settings menu, with structured categories, suggested corrections, email dispatch, and local history logging.
+- **Detailed Provenance Documentation**: See [CONTENT_LICENSES.md](./CONTENT_LICENSES.md) for full licensing, cryptographic verification methods, and academic references.
+
+---
+
+### 2. 📖 Interactive Word-by-Word Quran Reader
 - **1-Tap Word Learning**: Tap any Arabic word in any Ayah to open its detailed morphology card.
 - **Root Analysis (`جَذْر`)**: View the 3-letter Arabic root, its foundational meaning, and total Quranic frequency.
 - **Grammar & Morphology**: Clear grammatical breakdown (Part of Speech, Grammatical Case, Derived Forms, Roles).

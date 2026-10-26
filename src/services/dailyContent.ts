@@ -22,6 +22,9 @@ export interface BlessedSurahItem {
   targetAyah?: number;
   badge: string;
   virtue: string;
+  hadithSource: string;
+  hadithGrade: string;
+  hadithNote?: string;
   accentColor: string;
   bgColor: string;
   borderColor: string;
@@ -172,7 +175,10 @@ export const BLESSED_SURAHS: BlessedSurahItem[] = [
     arabicTitle: 'سُورَةُ الْمُلْكِ',
     surahNumber: 67,
     badge: 'Night Sunnah',
-    virtue: 'Recited before sleep as a protective shield and intercessor.',
+    virtue: 'Recited before sleep as an intercessor until sins are forgiven.',
+    hadithSource: 'Jami` at-Tirmidhi 2891, Abu Dawud 1400',
+    hadithGrade: 'Sahih (Al-Albani)',
+    hadithNote: 'Narrated from Abu Hurairah that the Prophet (ﷺ) said: "There is a Surah of thirty verses that interceded for a man until he was forgiven: Tabarakallazi bi yadihil-Mulk."',
     accentColor: '#7C3AED',
     bgColor: '#FAF5FF',
     borderColor: '#E9D5FF',
@@ -185,6 +191,9 @@ export const BLESSED_SURAHS: BlessedSurahItem[] = [
     surahNumber: 18,
     badge: 'Friday Blessing',
     virtue: 'Brings celestial light illuminating the path between Fridays.',
+    hadithSource: 'Sunan al-Kubra al-Bayhaqi 5856, Sahih al-Jami` 6470',
+    hadithGrade: 'Sahih (Al-Albani)',
+    hadithNote: 'Narrated from Abu Sa\'id al-Khudri that the Prophet (ﷺ) said: "Whoever recites Surah Al-Kahf on Friday, light will shine for him between the two Fridays."',
     accentColor: '#D97706',
     bgColor: '#FFFBEB',
     borderColor: '#FDE68A',
@@ -198,6 +207,9 @@ export const BLESSED_SURAHS: BlessedSurahItem[] = [
     targetAyah: 255,
     badge: 'Greatest Ayah',
     virtue: 'The supreme verse of divine sovereignty and daily protection.',
+    hadithSource: 'Sahih Muslim 810',
+    hadithGrade: 'Sahih',
+    hadithNote: 'The Prophet (ﷺ) asked Ubayy ibn Ka\'b: "Which verse in the Book of Allah is greatest?" He answered: "Allahu la ilaha illa Huwa al-Hayy al-Qayyum." The Prophet struck his chest gently and said: "May knowledge be felicitous for you, Abu al-Mundhir."',
     accentColor: '#059669',
     bgColor: '#ECFDF5',
     borderColor: '#A7F3D0',
@@ -209,7 +221,10 @@ export const BLESSED_SURAHS: BlessedSurahItem[] = [
     arabicTitle: 'سُورَةُ يٰسٓ',
     surahNumber: 36,
     badge: 'Heart of Quran',
-    virtue: 'Revered as the radiant heart of the Holy Book bringing peace.',
+    virtue: 'Revered in Islamic tradition for invoking mercy and reflection.',
+    hadithSource: 'Jami` at-Tirmidhi 2887, Sunan ad-Darimi 3416',
+    hadithGrade: 'Da\'if (Weak chain — recorded for historical virtue)',
+    hadithNote: 'The narration describing Ya-Sin as the "Heart of the Quran" is graded weak (Da\'if) by modern hadith scholars, but traditionally cited by classical commentators for encouraging recitation.',
     accentColor: '#2563EB',
     bgColor: '#EFF6FF',
     borderColor: '#BFDBFE',
@@ -221,7 +236,10 @@ export const BLESSED_SURAHS: BlessedSurahItem[] = [
     arabicTitle: 'سُورَةُ الرَّحْمَٰنِ',
     surahNumber: 55,
     badge: 'Divine Favors',
-    virtue: 'The bride of the Quran celebrating Allah\'s countless blessings.',
+    virtue: 'Celebrates Allah\'s boundless blessings and divine compassion.',
+    hadithSource: 'Shu\'ab al-Iman by al-Bayhaqi 2270',
+    hadithGrade: 'Da\'if (Weak chain — poetic honorific)',
+    hadithNote: 'The narration calling Ar-Rahman the "Bride of the Quran" (Arus al-Quran) has a weak chain; it is cherished across classical literature as a celebration of Allah\'s countless favors.',
     accentColor: '#DB2777',
     bgColor: '#FDF2F8',
     borderColor: '#FBCFE8',
@@ -233,7 +251,10 @@ export const BLESSED_SURAHS: BlessedSurahItem[] = [
     arabicTitle: 'سُورَةُ الْإِخْلَاصِ',
     surahNumber: 112,
     badge: '1/3 of Quran',
-    virtue: 'Purity of Monotheism, equivalent to reciting one-third of the Quran.',
+    virtue: 'Pure monotheism, equivalent to reciting one-third of the Quran.',
+    hadithSource: 'Sahih al-Bukhari 5013, Sahih Muslim 811',
+    hadithGrade: 'Sahih',
+    hadithNote: 'Narrated from Abu Sa\'id al-Khudri: The Prophet (ﷺ) said: "Is one of you unable to recite one-third of the Quran in a single night?" They said: "Who among us can do that, O Messenger of Allah?" He replied: "Surah Al-Ikhlas is equal to one-third of the Quran."',
     accentColor: '#6D28D9',
     bgColor: '#FAF5FF',
     borderColor: '#E9D5FF',

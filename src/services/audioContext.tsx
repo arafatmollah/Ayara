@@ -8,14 +8,57 @@ export interface ReciterInfo {
   name: string;
   subname: string;
   bitrate: string;
+  riwayah: string;
+  source: string;
+  provenance: string;
 }
 
 export const RECITERS_LIST: ReciterInfo[] = [
-  { id: 'Alafasy_128kbps', name: 'Mishary Rashid Alafasy', subname: 'Murattal (Kuwait)', bitrate: '128 kbps' },
-  { id: 'Abdul_Basit_Murattal_192kbps', name: 'AbdulBaset AbdulSamad', subname: 'Murattal (Egypt)', bitrate: '192 kbps' },
-  { id: 'Maher_AlMuaiqly_64kbps', name: 'Maher Al-Muaiqly', subname: 'Masjid al-Haram', bitrate: '64 kbps' },
-  { id: 'Abu_Bakr_Ash-Shaatree_128kbps', name: 'Abu Bakr Al-Shatri', subname: 'Jeddah', bitrate: '128 kbps' },
-  { id: 'Husary_128kbps', name: 'Mahmoud Khalil Al-Husary', subname: 'Master of Tajweed', bitrate: '128 kbps' },
+  {
+    id: 'Alafasy_128kbps',
+    name: 'Mishary Rashid Alafasy',
+    subname: 'Murattal (Kuwait)',
+    bitrate: '128 kbps',
+    riwayah: "Hafs 'an 'Asim",
+    source: 'EveryAyah.com Verified Archive',
+    provenance: 'High-clarity studio recitation supervised by Qurra in Kuwait',
+  },
+  {
+    id: 'Abdul_Basit_Murattal_192kbps',
+    name: 'AbdulBaset AbdulSamad',
+    subname: 'Murattal (Egypt)',
+    bitrate: '192 kbps',
+    riwayah: "Hafs 'an 'Asim",
+    source: 'EveryAyah.com Verified Archive',
+    provenance: 'Canonical Egyptian Radio standard recitation recording',
+  },
+  {
+    id: 'Maher_AlMuaiqly_64kbps',
+    name: 'Maher Al-Muaiqly',
+    subname: 'Masjid al-Haram',
+    bitrate: '64 kbps',
+    riwayah: "Hafs 'an 'Asim",
+    source: 'EveryAyah.com Verified Archive',
+    provenance: 'Imam of Masjid al-Haram, Makkah al-Mukarramah',
+  },
+  {
+    id: 'Abu_Bakr_Ash-Shaatree_128kbps',
+    name: 'Abu Bakr Al-Shatri',
+    subname: 'Jeddah',
+    bitrate: '128 kbps',
+    riwayah: "Hafs 'an 'Asim",
+    source: 'EveryAyah.com Verified Archive',
+    provenance: 'Renowned Saudi Qari with melodious murattal style',
+  },
+  {
+    id: 'Husary_128kbps',
+    name: 'Mahmoud Khalil Al-Husary',
+    subname: 'Master of Tajweed',
+    bitrate: '128 kbps',
+    riwayah: "Hafs 'an 'Asim",
+    source: 'EveryAyah.com Verified Archive',
+    provenance: 'Authoritative gold standard of Tajweed rules and articulation',
+  },
 ];
 
 interface AudioContextType {
@@ -48,20 +91,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const status = useAudioPlayerStatus(player);
 
   const isTransitioningRef = useRef(false);
+  const stateRef = useRef({ currentSurah, currentAyah, reciter });
+
+  useEffect(() => {
+    stateRef.current = { currentSurah, currentAyah, reciter };
+  }, [currentSurah, currentAyah, reciter]);
 
   useEffect(() => {
     getReaderSettings().then((s) => {
       if (s.reciter) setReciterState(s.reciter);
     });
   }, []);
-
-  const setReciter = (id: string) => {
-    setReciterState(id);
-    saveReaderSettings({ reciter: id });
-    if (currentSurah && currentAyah && status.playing) {
-      playAyahWithReciter(currentSurah, currentAyah, id);
-    }
-  };
 
   const playAyahWithReciter = (surah: number, ayah: number, activeReciter: string) => {
     isTransitioningRef.current = true;
@@ -79,6 +119,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }, 400);
   };
 
+  const setReciter = (id: string) => {
+    setReciterState(id);
+    saveReaderSettings({ reciter: id });
+    if (currentSurah && currentAyah && status.playing) {
+      playAyahWithReciter(currentSurah, currentAyah, id);
+    }
+  };
+
   const playAyah = (surah: number, ayah: number) => {
     playAyahWithReciter(surah, ayah, reciter);
   };
@@ -90,6 +138,15 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     } else {
       player.play();
     }
+  };
+
+  const stop = () => {
+    if (player) {
+      player.pause();
+    }
+    setCurrentSurah(null);
+    setCurrentAyah(null);
+    setAudioUrl(null);
   };
 
   const playNext = () => {
@@ -118,23 +175,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const stop = () => {
-    if (player) {
-      player.pause();
-    }
-    setCurrentSurah(null);
-    setCurrentAyah(null);
-    setAudioUrl(null);
-  };
+  const playAyahWithReciterRef = useRef(playAyahWithReciter);
+  const stopRef = useRef(stop);
+
+  useEffect(() => {
+    playAyahWithReciterRef.current = playAyahWithReciter;
+    stopRef.current = stop;
+  });
 
   // Handle auto-advance when ayah finishes
   useEffect(() => {
-    if (status.didJustFinish && !isTransitioningRef.current && currentSurah && currentAyah) {
-      const meta = getSurahMeta(currentSurah);
-      if (meta && currentAyah < meta.ayahs) {
-        playAyah(currentSurah, currentAyah + 1);
-      } else {
-        stop();
+    if (status.didJustFinish && !isTransitioningRef.current) {
+      const { currentSurah: s, currentAyah: a, reciter: r } = stateRef.current;
+      if (s && a) {
+        const meta = getSurahMeta(s);
+        if (meta && a < meta.ayahs) {
+          playAyahWithReciterRef.current(s, a + 1, r);
+        } else {
+          stopRef.current();
+        }
       }
     }
   }, [status.didJustFinish]);

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, SHADOWS } from '../constants/theme';
 import { AyahData, WordData } from '../types/quran';
+import { isSajdahAyah, toArabicNumerals } from '../constants/quranAccuracy';
 
 interface AyahItemProps {
   ayah: AyahData;
@@ -18,6 +19,8 @@ interface AyahItemProps {
   onPlay: () => void;
   onToggleBookmark: () => void;
   onWordSelect?: (word: WordData, wordIndex: number, ayah: AyahData) => void;
+  onSajdahPress?: (surah: number, ayah: number) => void;
+  onReportPress?: (ayah: AyahData) => void;
 }
 
 export const AyahItem: React.FC<AyahItemProps> = ({
@@ -33,7 +36,11 @@ export const AyahItem: React.FC<AyahItemProps> = ({
   onPlay,
   onToggleBookmark,
   onWordSelect,
+  onSajdahPress,
+  onReportPress,
 }) => {
+  const isSajdah = isSajdahAyah(ayah.surah, ayah.ayah);
+
   const handleBookmarkPress = () => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -55,20 +62,50 @@ export const AyahItem: React.FC<AyahItemProps> = ({
     onWordSelect?.(word, index, ayah);
   };
 
+  const handleSajdahPress = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    onSajdahPress?.(ayah.surah, ayah.ayah);
+  };
+
+  const handleReportPress = () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    onReportPress?.(ayah);
+  };
+
   return (
     <View
       style={[
         styles.container,
         isPlaying && styles.playingContainer,
         focusMode && styles.containerFocus,
+        isSajdah && styles.sajdahContainer,
       ]}
     >
       {/* Top Action Bar (discreet in focus mode) */}
       <View style={styles.topBar}>
-        <View style={styles.ayahBadge}>
-          <Text style={styles.ayahBadgeText}>
-            {ayah.surah}:{ayah.ayah}
-          </Text>
+        <View style={styles.badgeGroup}>
+          <View style={styles.ayahBadge}>
+            <Text style={styles.ayahBadgeText}>
+              {ayah.surah}:{ayah.ayah}
+            </Text>
+          </View>
+
+          {isSajdah && (
+            <TouchableOpacity
+              style={styles.sajdahBadge}
+              onPress={handleSajdahPress}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Sajdah Tilawah verse. Tap to view prostration ruling and du'a."
+            >
+              <Text style={styles.sajdahBadgeIcon}>۩</Text>
+              <Text style={styles.sajdahBadgeText}>Sajdah</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.actionsRow}>
@@ -101,10 +138,21 @@ export const AyahItem: React.FC<AyahItemProps> = ({
               color={isBookmarked ? COLORS.gold : COLORS.textMuted}
             />
           </TouchableOpacity>
+
+          {/* Report Inaccuracy Button */}
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={handleReportPress}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Report suspected accuracy issue with this verse"
+          >
+            <Ionicons name="flag-outline" size={15} color={COLORS.textMuted} />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* Spacious Arabic Text with Interactive Words */}
+      {/* Spacious Arabic Text with Interactive Words & Uthmani Ayah Ending */}
       <View style={styles.arabicContainer}>
         {ayah.words && ayah.words.length > 0 ? (
           <Text
@@ -130,6 +178,9 @@ export const AyahItem: React.FC<AyahItemProps> = ({
                 </Text>
               );
             })}
+            <Text style={styles.ayahEndOrnament}>
+              {' ' + '۝' + toArabicNumerals(ayah.ayah) + ' '}
+            </Text>
           </Text>
         ) : (
           <Text
@@ -140,6 +191,9 @@ export const AyahItem: React.FC<AyahItemProps> = ({
             selectable
           >
             {ayah.arabic}
+            <Text style={styles.ayahEndOrnament}>
+              {' ' + '۝' + toArabicNumerals(ayah.ayah) + ' '}
+            </Text>
           </Text>
         )}
       </View>
@@ -216,11 +270,20 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.highlightBg,
     borderColor: COLORS.goldBorder,
   },
+  sajdahContainer: {
+    borderColor: '#FDE68A',
+    backgroundColor: '#FEFDF8',
+  },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  badgeGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   ayahBadge: {
     backgroundColor: COLORS.primarySurface,
@@ -234,6 +297,32 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 12,
     color: COLORS.primaryDark,
+  },
+  sajdahBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  sajdahBadgeIcon: {
+    fontFamily: FONTS.arabicBold,
+    fontSize: 14,
+    color: '#B45309',
+  },
+  sajdahBadgeText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11,
+    color: '#92400E',
+  },
+  ayahEndOrnament: {
+    fontFamily: FONTS.arabicBold,
+    color: COLORS.primary,
+    fontSize: 20,
   },
   actionsRow: {
     flexDirection: 'row',

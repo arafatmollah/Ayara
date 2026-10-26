@@ -667,8 +667,8 @@ export default function QuranlyHomeScreen() {
                       Alhamdulillah for Your Steadfastness
                     </Text>
                     <Text style={styles.istiqamahBannerSub}>
-                      &ldquo;The deeds most loved by Allah are those done regularly, even if few.&rdquo;
-                      May Allah accept your efforts and grant barakah in your learning.
+                      &ldquo;The deeds most loved by Allah are those done regularly, even if few.&rdquo; (Sahih al-Bukhari 6464, Sahih Muslim 782).
+                      {'\n'}May Allah accept your efforts and grant barakah in your learning.
                     </Text>
                   </View>
                 </View>
@@ -838,6 +838,18 @@ export default function QuranlyHomeScreen() {
                   <Text style={styles.blessedVirtueText} numberOfLines={3}>
                     {item.virtue}
                   </Text>
+
+                  {item.hadithSource && (
+                    <View style={styles.blessedHadithRow}>
+                      <Ionicons name="book-outline" size={11} color={item.accentColor} />
+                      <Text
+                        style={[styles.blessedHadithText, { color: item.accentColor }]}
+                        numberOfLines={1}
+                      >
+                        {item.hadithSource} • {item.hadithGrade}
+                      </Text>
+                    </View>
+                  )}
 
                   <View style={styles.blessedActionRow}>
                     <Text style={[styles.blessedReadText, { color: item.accentColor }]}>
@@ -2478,7 +2490,22 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 15,
     marginTop: 4,
+    marginBottom: 6,
+  },
+  blessedHadithRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  blessedHadithText: {
+    fontSize: 10,
+    fontFamily: FONTS.sansMedium,
+    flex: 1,
   },
   blessedActionRow: {
     flexDirection: 'row',

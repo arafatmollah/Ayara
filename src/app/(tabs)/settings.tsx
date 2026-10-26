@@ -23,16 +23,27 @@ import {
   setUserProfile,
   clearAllActivityData,
   DEFAULT_SETTINGS,
+  getContentErrorReports,
 } from '../../services/storage';
 import { useQuranAudio, RECITERS_LIST } from '../../services/audioContext';
-import { ReaderSettings, UserProfile } from '../../types/quran';
+import { ReaderSettings, UserProfile, ContentErrorReport } from '../../types/quran';
+import { SourcesTransparencyModal } from '../../components/SourcesTransparencyModal';
+import { WaqfSignsModal } from '../../components/WaqfSignsModal';
+import { ContentErrorReportModal } from '../../components/ContentErrorReportModal';
 
 export default function SettingsScreen() {
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
   const [dailyGoal, setGoal] = useState<number>(3);
-  const [profile, setProfile] = useState<UserProfile>({ name: 'Believer', joinedAt: Date.now() });
+  const [profile, setProfile] = useState<UserProfile>(() => ({ name: 'Believer', joinedAt: Date.now() }));
   const [isNameModalVisible, setIsNameModalVisible] = useState(false);
   const [editNameText, setEditNameText] = useState('');
+
+  // Accuracy & Transparency Modals
+  const [isSourcesModalVisible, setIsSourcesModalVisible] = useState(false);
+  const [isWaqfModalVisible, setIsWaqfModalVisible] = useState(false);
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
+  const [submittedReports, setSubmittedReports] = useState<ContentErrorReport[]>([]);
+  const [isViewReportsVisible, setIsViewReportsVisible] = useState(false);
 
   const audio = useQuranAudio();
 
@@ -40,6 +51,7 @@ export default function SettingsScreen() {
     getReaderSettings().then(setSettings);
     getDailyGoal().then(setGoal);
     getUserProfile().then(setProfile);
+    getContentErrorReports().then(setSubmittedReports);
   }, []);
 
   const updateSettings = async (partial: Partial<ReaderSettings>) => {
@@ -306,14 +318,119 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* About Card */}
+        {/* Quran Accuracy & Source Transparency Section */}
+        <View style={styles.sectionCard}>
+          <View style={styles.accuracyHeaderRow}>
+            <View style={styles.accuracyShieldBadge}>
+              <Ionicons name="shield-checkmark" size={16} color={COLORS.primaryDark} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <Text style={styles.sectionHeader}>Quran Accuracy & Sources</Text>
+              <Text style={styles.rowSub}>The foundational trust of the Ayara companion</Text>
+            </View>
+          </View>
+
+          {/* Row 1: Verified Sources & Provenance */}
+          <TouchableOpacity
+            style={styles.accuracyRowItem}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              } catch {}
+              setIsSourcesModalVisible(true);
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="View verified Quran sources and authenticity"
+          >
+            <View style={styles.accuracyRowIcon}>
+              <Ionicons name="library-outline" size={18} color={COLORS.primaryDark} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.rowTitle}>Sources & Methodology</Text>
+              <Text style={styles.rowSub}>Tanzil Uthmani, Saheeh Int., EveryAyah & Corpus</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* Row 2: Stopping Signs (Waqf) Guide */}
+          <TouchableOpacity
+            style={styles.accuracyRowItem}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              } catch {}
+              setIsWaqfModalVisible(true);
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Open Quranic stopping signs and typography guide"
+          >
+            <View style={styles.accuracyRowIcon}>
+              <Ionicons name="pause-circle-outline" size={18} color={COLORS.primaryDark} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.rowTitle}>Stopping Signs (Waqf) Guide</Text>
+              <Text style={styles.rowSub}>Explanation of مـ, لا, ج, صلى, قلى, and Sajdah marks</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* Row 3: Report Suspected Discrepancy */}
+          <TouchableOpacity
+            style={styles.accuracyRowItem}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              } catch {}
+              setIsReportModalVisible(true);
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Report suspected content or translation discrepancy"
+          >
+            <View style={[styles.accuracyRowIcon, { backgroundColor: '#FEE2E2' }]}>
+              <Ionicons name="flag-outline" size={18} color="#DC2626" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.rowTitle}>Report a Content Discrepancy</Text>
+              <Text style={styles.rowSub}>Report suspected typos, translations or audio glitches</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
+
+          {/* Row 4 (if any reports submitted): View Submitted Reports */}
+          {submittedReports.length > 0 && (
+            <>
+              <View style={styles.divider} />
+              <TouchableOpacity
+                style={styles.accuracyRowItem}
+                onPress={() => setIsViewReportsVisible(true)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.accuracyRowIcon, { backgroundColor: '#ECFDF5' }]}>
+                  <Ionicons name="document-text-outline" size={18} color="#059669" />
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.rowTitle}>My Submitted Reports ({submittedReports.length})</Text>
+                  <Text style={styles.rowSub}>View previously submitted feedback records</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+
+        {/* About App Info */}
         <View style={styles.aboutCard}>
-          <Text style={styles.aboutTitle}>Sources & Authenticity</Text>
+          <Text style={styles.aboutTitle}>Ayara (آيَارَى) v1.2.0</Text>
           <Text style={styles.aboutText}>
-            • Arabic Text: Tanzil Uthmani Quranic script{'\n'}
-            • Translation: Saheeh International{'\n'}
-            • Word by Word: Quran.com API v4 dataset{'\n'}
-            • Audio: EveryAyah Verified Recitations
+            Built with reverence, verified sources, and open-source transparency.{'\n'}
+            May Allah accept this effort from all who recite, memorize, and learn.
           </Text>
         </View>
       </ScrollView>
@@ -357,6 +474,75 @@ export default function SettingsScreen() {
                 <Text style={styles.nameSaveText}>Save</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Sources & Transparency Modal */}
+      <SourcesTransparencyModal
+        visible={isSourcesModalVisible}
+        onClose={() => setIsSourcesModalVisible(false)}
+        onOpenErrorReport={() => setIsReportModalVisible(true)}
+      />
+
+      {/* Waqf Stopping Signs Guide Modal */}
+      <WaqfSignsModal
+        visible={isWaqfModalVisible}
+        onClose={() => setIsWaqfModalVisible(false)}
+      />
+
+      {/* Content Error Reporting Modal */}
+      <ContentErrorReportModal
+        visible={isReportModalVisible}
+        onClose={() => setIsReportModalVisible(false)}
+        onSubmitted={(newReport) => {
+          setSubmittedReports((prev) => [newReport, ...prev]);
+        }}
+      />
+
+      {/* Submitted Reports Modal */}
+      <Modal
+        visible={isViewReportsVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsViewReportsVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { maxHeight: '80%' }]}>
+            <View style={styles.reportsHeaderRow}>
+              <Text style={styles.modalTitle}>My Submitted Reports</Text>
+              <TouchableOpacity
+                onPress={() => setIsViewReportsVisible(false)}
+                style={styles.closeBtnSmall}
+              >
+                <Ionicons name="close" size={20} color={COLORS.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSub}>
+              All reported items are queued for review against the King Fahd Complex Mushaf.
+            </Text>
+
+            <ScrollView style={{ marginTop: 12 }}>
+              {submittedReports.map((r) => (
+                <View key={r.id} style={styles.reportItemCard}>
+                  <View style={styles.reportItemTop}>
+                    <Text style={styles.reportItemBadge}>
+                      Surah {r.surah}:{r.ayah} • {r.category}
+                    </Text>
+                    <Text style={styles.reportItemStatus}>{r.status}</Text>
+                  </View>
+                  <Text style={styles.reportItemDesc}>{r.description}</Text>
+                  {r.suggestedCorrection && (
+                    <Text style={styles.reportItemCorrection}>
+                      Suggestion: {r.suggestedCorrection}
+                    </Text>
+                  )}
+                  <Text style={styles.reportItemDate}>
+                    {new Date(r.timestamp).toLocaleDateString()}
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -712,5 +898,99 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansMedium,
     fontSize: 14,
     color: COLORS.textSecondary,
+  },
+  accuracyHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  accuracyShieldBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: COLORS.primarySurface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+  },
+  accuracyRowItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  accuracyRowIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: COLORS.surfaceSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  reportsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 4,
+  },
+  closeBtnSmall: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.surfaceSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reportItemCard: {
+    backgroundColor: COLORS.surfaceSubtle,
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 10,
+    width: '100%',
+  },
+  reportItemTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  reportItemBadge: {
+    fontSize: 12,
+    fontFamily: FONTS.sansBold,
+    color: COLORS.primaryDark,
+  },
+  reportItemStatus: {
+    fontSize: 10,
+    fontFamily: FONTS.sansBold,
+    color: '#059669',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    textTransform: 'uppercase',
+  },
+  reportItemDesc: {
+    fontSize: 12,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textPrimary,
+    lineHeight: 17,
+    marginBottom: 4,
+  },
+  reportItemCorrection: {
+    fontSize: 11,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.primaryDark,
+    fontStyle: 'italic',
+    marginBottom: 4,
+  },
+  reportItemDate: {
+    fontSize: 10,
+    fontFamily: FONTS.sansRegular,
+    color: COLORS.textMuted,
   },
 });

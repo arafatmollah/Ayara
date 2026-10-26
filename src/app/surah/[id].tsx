@@ -27,9 +27,14 @@ import {
   DEFAULT_SETTINGS,
 } from '../../services/storage';
 import { useQuranAudio } from '../../services/audioContext';
-import { AyahData, BookmarkItem, ReaderSettings, WordData, WordLearningDetails } from '../../types/quran';
+import { AyahData, BookmarkItem, ReaderSettings, WordData, WordLearningDetails, SajdahAyahInfo } from '../../types/quran';
 import { AyahItem } from '../../components/AyahItem';
 import { WordLearningModal } from '../../components/WordLearningModal';
+import { SajdahTilawahModal } from '../../components/SajdahTilawahModal';
+import { WaqfSignsModal } from '../../components/WaqfSignsModal';
+import { SourcesTransparencyModal } from '../../components/SourcesTransparencyModal';
+import { ContentErrorReportModal } from '../../components/ContentErrorReportModal';
+import { getSajdahAyahInfo } from '../../constants/quranAccuracy';
 import { getWordLearningDetails } from '../../services/learningData';
 
 const VIEWABILITY_CONFIG = {
@@ -52,6 +57,15 @@ export default function SurahReaderScreen() {
   const [activeWordAyah, setActiveWordAyah] = useState<number | null>(null);
   const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
   const flatListRef = useRef<FlatList<AyahData>>(null);
+
+  // Quran Accuracy & Transparency modals state
+  const [isSajdahModalVisible, setIsSajdahModalVisible] = useState(false);
+  const [activeSajdahInfo, setActiveSajdahInfo] = useState<SajdahAyahInfo | null>(null);
+  const [isWaqfModalVisible, setIsWaqfModalVisible] = useState(false);
+  const [isSourcesModalVisible, setIsSourcesModalVisible] = useState(false);
+  const [isReportModalVisible, setIsReportModalVisible] = useState(false);
+  const [reportTargetAyah, setReportTargetAyah] = useState<AyahData | null>(null);
+  const [reportWordData, setReportWordData] = useState<{ wordText?: string; wordIndex?: number } | null>(null);
 
   const { currentSurah, currentAyah, isPlaying, playAyah, togglePlay } = useQuranAudio();
 
@@ -204,6 +218,20 @@ export default function SurahReaderScreen() {
     }
   };
 
+  const handleOpenSajdah = (s: number, a: number) => {
+    const info = getSajdahAyahInfo(s, a);
+    if (info) {
+      setActiveSajdahInfo(info);
+      setIsSajdahModalVisible(true);
+    }
+  };
+
+  const handleOpenReport = (target: AyahData, word?: { wordText?: string; wordIndex?: number }) => {
+    setReportTargetAyah(target);
+    setReportWordData(word || null);
+    setIsReportModalVisible(true);
+  };
+
   // Record read progress and current reading position dynamically
   const handleViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: { item: AyahData }[] }) => {
@@ -331,6 +359,23 @@ export default function SurahReaderScreen() {
           </Text>
         </TouchableOpacity>
 
+        {/* Waqf Stopping Signs Guide */}
+        <TouchableOpacity
+          style={styles.togglePill}
+          onPress={() => {
+            try {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            } catch {}
+            setIsWaqfModalVisible(true);
+          }}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Quranic stopping marks and typography guide"
+        >
+          <Ionicons name="pause-circle-outline" size={13} color={COLORS.primaryDark} />
+          <Text style={styles.togglePillText}>Waqf</Text>
+        </TouchableOpacity>
+
         {/* Memorization / Hifz Mode */}
         <TouchableOpacity
           style={styles.togglePill}
@@ -401,8 +446,25 @@ export default function SurahReaderScreen() {
           <Text style={styles.navSub}>Surah {surahMeta.n} • {surahMeta.ayahs} Verses</Text>
         </View>
 
-        <View style={styles.navRightBadge}>
-          <Text style={styles.navRightBadgeText}>{surahMeta.ar}</Text>
+        <View style={styles.navRightGroup}>
+          <TouchableOpacity
+            style={styles.navSourcesBtn}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              } catch {}
+              setIsSourcesModalVisible(true);
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="View verified Quran sources and authenticity"
+          >
+            <Ionicons name="shield-checkmark-outline" size={18} color={COLORS.primaryDark} />
+          </TouchableOpacity>
+
+          <View style={styles.navRightBadge}>
+            <Text style={styles.navRightBadgeText}>{surahMeta.ar}</Text>
+          </View>
         </View>
       </View>
 
@@ -476,6 +538,8 @@ export default function SurahReaderScreen() {
               onPlay={() => playAyah(surahNumber, item.ayah)}
               onToggleBookmark={() => handleToggleBookmark(item)}
               onWordSelect={handleWordSelect}
+              onSajdahPress={handleOpenSajdah}
+              onReportPress={(ayahData) => handleOpenReport(ayahData)}
             />
           );
         }}
@@ -499,6 +563,62 @@ export default function SurahReaderScreen() {
           setActiveWordIndex(null);
         }}
         onNavigateToAyah={handleNavigateToOccurrenceAyah}
+        onReportWord={(details) => {
+          const matchingAyah = ayahs.find((a) => a.ayah === details.ayah);
+          handleOpenReport(
+            matchingAyah || {
+              surah: details.surah,
+              ayah: details.ayah,
+              arabic: details.arabic,
+              english: details.english,
+              transliteration: details.transliteration,
+            },
+            { wordText: details.arabic, wordIndex: details.wordIndex }
+          );
+        }}
+      />
+
+      {/* Sajdah Tilawah Modal */}
+      <SajdahTilawahModal
+        visible={isSajdahModalVisible}
+        sajdahInfo={activeSajdahInfo}
+        onClose={() => {
+          setIsSajdahModalVisible(false);
+          setActiveSajdahInfo(null);
+        }}
+      />
+
+      {/* Waqf Stopping Signs Guide Modal */}
+      <WaqfSignsModal
+        visible={isWaqfModalVisible}
+        onClose={() => setIsWaqfModalVisible(false)}
+      />
+
+      {/* Sources & Authenticity Modal */}
+      <SourcesTransparencyModal
+        visible={isSourcesModalVisible}
+        onClose={() => setIsSourcesModalVisible(false)}
+        onOpenErrorReport={() => {
+          handleOpenReport(ayahs[0]);
+        }}
+      />
+
+      {/* Content Error Reporting Modal */}
+      <ContentErrorReportModal
+        visible={isReportModalVisible}
+        onClose={() => {
+          setIsReportModalVisible(false);
+          setReportTargetAyah(null);
+          setReportWordData(null);
+        }}
+        initialSurah={reportTargetAyah ? reportTargetAyah.surah : surahNumber}
+        initialAyah={reportTargetAyah ? reportTargetAyah.ayah : 1}
+        initialSurahName={surahMeta.en}
+        initialWordIndex={reportWordData?.wordIndex}
+        initialWordText={reportWordData?.wordText}
+        initialArabicSnippet={reportTargetAyah?.arabic}
+        initialTranslationSnippet={reportTargetAyah?.english}
+        initialCategory={reportWordData ? 'morphology_root' : 'arabic_text'}
       />
     </SafeAreaView>
   );
@@ -544,6 +664,21 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansRegular,
     fontSize: 12,
     color: COLORS.textMuted,
+  },
+  navRightGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  navSourcesBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: COLORS.surfaceSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
   },
   navRightBadge: {
     paddingHorizontal: 10,

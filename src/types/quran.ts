@@ -377,3 +377,72 @@ export interface LearningPathProgress {
   lastUpdated: number;
 }
 
+// ----------------- Quran Accuracy, Typography & Sources -----------------
+
+export type ContentErrorCategory =
+  | 'arabic_text'
+  | 'translation'
+  | 'transliteration'
+  | 'morphology_root'
+  | 'audio_recitation'
+  | 'hadith_virtue'
+  | 'stopping_sign_waqf'
+  | 'other';
+
+export interface ContentErrorReport {
+  id: string;
+  timestamp: number;
+  surah: number;
+  ayah: number;
+  surahName?: string;
+  wordIndex?: number;
+  wordText?: string;
+  category: ContentErrorCategory;
+  arabicSnippet?: string;
+  translationSnippet?: string;
+  description: string;
+  suggestedCorrection?: string;
+  scholarlyReference?: string;
+  userEmail?: string;
+  status: 'submitted' | 'reviewed' | 'resolved';
+}
+
+export interface SajdahAyahInfo {
+  surah: number;
+  ayah: number;
+  surahName: string;
+  surahNameAr: string;
+  juz: number;
+  ruku: number;
+  ruling: string; // e.g. "Sunnah Mu'akkadah (Majority) / Wajib (Hanafi)"
+  arabicPhrase: string; // The phrase containing the prostration command
+  duaAr: string;
+  duaTr: string;
+  duaEn: string;
+  hadithRef: string;
+}
+
+export interface WaqfSignInfo {
+  id: string;
+  sign: string;
+  symbolChar: string;
+  nameAr: string;
+  nameEn: string;
+  ruleTitle: string;
+  ruleDescription: string;
+  priority: 'compulsory' | 'forbidden' | 'preferred_stop' | 'preferred_continue' | 'permissible' | 'paired' | 'pause';
+  exampleAyah?: string;
+  exampleRef?: string;
+}
+
+export interface SourceProvenanceItem {
+  layer: string;
+  title: string;
+  scholarOrOrganization: string;
+  editionOrStandard: string;
+  description: string;
+  verificationMethod: string;
+  licenseOrStatus: string;
+}
+
+

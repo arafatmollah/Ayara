@@ -7,6 +7,7 @@ export interface DailyReflectionItem {
   arabic: string;
   translation: string;
   contemplation: string;
+  translationSource?: string;
 }
 
 export const REFLECTIONS_DATA: DailyReflectionItem[] = [

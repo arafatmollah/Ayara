@@ -17,6 +17,7 @@ import {
   DailyMissionItem,
   DailyMissionsState,
   LearningPathProgress,
+  ContentErrorReport,
 } from '../types/quran';
 
 const USER_PROFILE_KEY = '@quran_user_profile';
@@ -32,6 +33,7 @@ const GOAL_KEY = '@quran_daily_goal';
 const HISTORY_KEY = '@quran_activity_history'; // Record<dateStr, { verses: number, hasanat: number, timeSeconds?: number }>
 const DAILY_MISSIONS_KEY_PREFIX = '@quran_daily_missions_';
 const LEARNING_PATH_PROGRESS_KEY = '@quran_learning_path_progress';
+const CONTENT_ERROR_REPORTS_KEY = '@quran_content_error_reports';
 
 export interface DayHistoryRecord {
   verses: number;
@@ -881,5 +883,44 @@ export async function isLessonCompleted(lessonId: string): Promise<boolean> {
   return current.completedLessonIds.includes(lessonId);
 }
 
+// ----------------- Content Error Reporting Storage -----------------
 
+export async function getContentErrorReports(): Promise<ContentErrorReport[]> {
+  try {
+    const raw = await AsyncStorage.getItem(CONTENT_ERROR_REPORTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
 
+export async function saveContentErrorReport(
+  reportData: Omit<ContentErrorReport, 'id' | 'timestamp' | 'status'>
+): Promise<ContentErrorReport> {
+  try {
+    const existing = await getContentErrorReports();
+    const newReport: ContentErrorReport = {
+      ...reportData,
+      id: `report_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      timestamp: Date.now(),
+      status: 'submitted',
+    };
+
+    const updated = [newReport, ...existing];
+    await AsyncStorage.setItem(CONTENT_ERROR_REPORTS_KEY, JSON.stringify(updated));
+    return newReport;
+  } catch {
+    return {
+      ...reportData,
+      id: `report_${Date.now()}`,
+      timestamp: Date.now(),
+      status: 'submitted',
+    };
+  }
+}
+
+export async function clearContentErrorReports(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(CONTENT_ERROR_REPORTS_KEY);
+  } catch {}
+}
