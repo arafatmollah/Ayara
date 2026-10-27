@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as Linking from 'expo-linking';
 import { COLORS, FONTS, SHADOWS } from '../../constants/theme';
 import {
   getReaderSettings,
@@ -30,6 +31,12 @@ import { ReaderSettings, UserProfile, ContentErrorReport } from '../../types/qur
 import { SourcesTransparencyModal } from '../../components/SourcesTransparencyModal';
 import { WaqfSignsModal } from '../../components/WaqfSignsModal';
 import { ContentErrorReportModal } from '../../components/ContentErrorReportModal';
+import {
+  enableDailyLearnReminder,
+  disableLearnReminder,
+  getReminderSettings,
+  setReminderTime,
+} from '../../services/notifications';
 
 export default function SettingsScreen() {
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -45,6 +52,11 @@ export default function SettingsScreen() {
   const [submittedReports, setSubmittedReports] = useState<ContentErrorReport[]>([]);
   const [isViewReportsVisible, setIsViewReportsVisible] = useState(false);
 
+  // Learn Reminder
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderHour, setReminderHour] = useState(22);
+  const [reminderMinute, setReminderMinute] = useState(0);
+
   const audio = useQuranAudio();
 
   useEffect(() => {
@@ -52,6 +64,11 @@ export default function SettingsScreen() {
     getDailyGoal().then(setGoal);
     getUserProfile().then(setProfile);
     getContentErrorReports().then(setSubmittedReports);
+    getReminderSettings().then((s) => {
+      setReminderEnabled(s.enabled);
+      setReminderHour(s.hour);
+      setReminderMinute(s.minute);
+    });
   }, []);
 
   const updateSettings = async (partial: Partial<ReaderSettings>) => {
@@ -115,6 +132,62 @@ export default function SettingsScreen() {
     updateSettings({ arabicFontSize: newSize });
   };
 
+  const handleOpenLink = async (url: string, label: string) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Notice', `Unable to open ${label} on this device.`);
+      }
+    } catch {
+      Alert.alert('Notice', `Unable to navigate to ${label}.`);
+    }
+  };
+
+  const handleToggleReminder = async (value: boolean) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    if (value) {
+      const ok = await enableDailyLearnReminder(reminderHour, reminderMinute);
+      if (ok) {
+        setReminderEnabled(true);
+      } else {
+        setReminderEnabled(false);
+        Alert.alert(
+          'Notifications Disabled',
+          'Please enable notifications for this app in your device settings to receive daily reminders.'
+        );
+      }
+    } else {
+      await disableLearnReminder();
+      setReminderEnabled(false);
+    }
+  };
+
+  const handleUpdateReminderTime = async (hour: number, minute: number) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    setReminderHour(hour);
+    setReminderMinute(minute);
+    await setReminderTime(hour, minute);
+    if (reminderEnabled) {
+      const ok = await enableDailyLearnReminder(hour, minute);
+      if (!ok) {
+        setReminderEnabled(false);
+        Alert.alert(
+          'Notifications Disabled',
+          'Please enable notifications for this app in your device settings to receive daily reminders.'
+        );
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -147,6 +220,62 @@ export default function SettingsScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
+          </View>
+        </View>
+
+        {/* Learn Reminder Card */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionHeader}>Daily Learn Reminder</Text>
+          <Text style={styles.rowSub}>Get a gentle reminder to learn Quran</Text>
+
+          <View style={styles.toggleRow}>
+            <View style={styles.toggleTextCol}>
+              <Text style={styles.rowTitle}>Reminder at 10:00 PM</Text>
+              <Text style={styles.rowSub}>
+                {String(reminderHour).padStart(2, '0')}:{String(reminderMinute).padStart(2, '0')} daily
+              </Text>
+            </View>
+            <Switch
+              value={reminderEnabled}
+              onValueChange={handleToggleReminder}
+              trackColor={{ false: COLORS.border, true: COLORS.primaryLight }}
+              thumbColor={reminderEnabled ? COLORS.primaryDark : '#f4f3f4'}
+            />
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.rowBetween}>
+            <View>
+              <Text style={styles.rowTitle}>Reminder Time</Text>
+              <Text style={styles.rowSub}>Tap to set time (default 22:00)</Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                style={[styles.fontBtn, { paddingHorizontal: 10 }]}
+                onPress={() => handleUpdateReminderTime(21, 0)}
+                accessibilityRole="button"
+                accessibilityLabel="Set reminder to 9 PM"
+              >
+                <Text style={styles.rowTitle}>21:00</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.fontBtn, { paddingHorizontal: 10 }]}
+                onPress={() => handleUpdateReminderTime(22, 0)}
+                accessibilityRole="button"
+                accessibilityLabel="Set reminder to 10 PM"
+              >
+                <Text style={styles.rowTitle}>22:00</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.fontBtn, { paddingHorizontal: 10 }]}
+                onPress={() => handleUpdateReminderTime(20, 0)}
+                accessibilityRole="button"
+                accessibilityLabel="Set reminder to 8 PM"
+              >
+                <Text style={styles.rowTitle}>20:00</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -425,6 +554,77 @@ export default function SettingsScreen() {
           )}
         </View>
 
+        {/* Creator & Developer Signature */}
+        <View style={styles.signatureCard}>
+          <View style={styles.signatureTopRow}>
+            <View style={styles.signatureAvatar}>
+              <Text style={styles.signatureAvatarText}>AM</Text>
+            </View>
+            <View style={styles.signatureMeta}>
+              <View style={styles.signatureBadgeRow}>
+                <Text style={styles.signatureBadgeText}>CREATOR & DEVELOPER</Text>
+                <View style={styles.signatureVerifiedPill}>
+                  <Ionicons name="checkmark-circle" size={11} color="#059669" />
+                  <Text style={styles.signatureVerifiedText}>Verified</Text>
+                </View>
+              </View>
+              <Text style={styles.signatureName}>Arafat Mollah</Text>
+              <Text style={styles.signatureSub}>Software Engineer • Ayara Creator</Text>
+            </View>
+          </View>
+
+          <View style={styles.signatureQuoteBox}>
+            <Text style={styles.signatureArabicDua}>جَزَاكُمُ ٱللَّٰهُ خَيْرًا</Text>
+            <Text style={styles.signatureQuoteText}>
+              I built Ayara with sincere reverence to make the Holy Quran accessible, verifiable, and beautiful. If this app benefits you, please keep me and my parents in your sincere duas.
+            </Text>
+          </View>
+
+          {/* Quick Connect & Links */}
+          <View style={styles.signatureActionsRow}>
+            <TouchableOpacity
+              style={styles.signatureActionBtn}
+              onPress={() => handleOpenLink('https://github.com/arafatmollah', 'GitHub Profile')}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Visit GitHub Profile"
+            >
+              <Ionicons name="logo-github" size={15} color={COLORS.textPrimary} />
+              <Text style={styles.signatureActionText}>GitHub</Text>
+              <Ionicons name="open-outline" size={11} color={COLORS.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.signatureActionBtn}
+              onPress={() => handleOpenLink('https://github.com/arafatmollah/Ayara', 'Ayara GitHub Repository')}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="View Ayara Source Repository"
+            >
+              <Ionicons name="git-branch-outline" size={15} color={COLORS.primary} />
+              <Text style={[styles.signatureActionText, { color: COLORS.primaryDark }]}>Repository</Text>
+              <Ionicons name="open-outline" size={11} color={COLORS.primary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.signatureActionBtn}
+              onPress={() =>
+                handleOpenLink(
+                  'mailto:arafatshuvo18@gmail.com?subject=Ayara%20Quran%20App%20Message',
+                  'Email'
+                )
+              }
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Send Email"
+            >
+              <Ionicons name="mail-outline" size={15} color="#059669" />
+              <Text style={[styles.signatureActionText, { color: '#059669' }]}>Contact</Text>
+              <Ionicons name="arrow-forward-outline" size={11} color="#059669" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* About App Info */}
         <View style={styles.aboutCard}>
           <Text style={styles.aboutTitle}>Ayara (آيَارَى) v1.2.0</Text>
@@ -698,6 +898,121 @@ const styles = StyleSheet.create({
   },
   verifiedBadge: {
     marginLeft: 8,
+  },
+  signatureCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+    ...SHADOWS.md,
+  },
+  signatureTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  signatureAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primarySurface,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  signatureAvatarText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 17,
+    color: COLORS.primaryDark,
+    letterSpacing: 0.5,
+  },
+  signatureMeta: {
+    flex: 1,
+  },
+  signatureBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
+  signatureBadgeText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 10,
+    color: COLORS.primary,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+  },
+  signatureVerifiedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  signatureVerifiedText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 9,
+    color: '#059669',
+    textTransform: 'uppercase',
+  },
+  signatureName: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 17,
+    color: COLORS.textPrimary,
+  },
+  signatureSub: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: 1,
+  },
+  signatureQuoteBox: {
+    backgroundColor: COLORS.surfaceSubtle,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  signatureArabicDua: {
+    fontFamily: FONTS.arabicSemiBold,
+    fontSize: 17,
+    color: COLORS.primaryDark,
+    marginBottom: 6,
+  },
+  signatureQuoteText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+  },
+  signatureActionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  signatureActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: COLORS.surfaceSubtle,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  signatureActionText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 11,
+    color: COLORS.textPrimary,
   },
   aboutCard: {
     backgroundColor: COLORS.surfaceSubtle,

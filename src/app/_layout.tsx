@@ -22,6 +22,8 @@ import { AudioProvider } from '../services/audioContext';
 import { AudioPlayerBar } from '../components/AudioPlayerBar';
 import { AyaraLaunchScreen } from '../components/AyaraLaunchScreen';
 import { COLORS } from '../constants/theme';
+import { enableDailyLearnReminder, getReminderSettings } from '../services/notifications';
+import { autoCheckForUpdates } from '../services/appUpdate';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -52,6 +54,23 @@ export default function RootLayout() {
       SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const settings = await getReminderSettings();
+        if (settings.enabled) {
+          await enableDailyLearnReminder(settings.hour, settings.minute);
+        }
+      } catch {}
+      try {
+        // Check for updates from GitHub releases (non-blocking)
+        setTimeout(() => {
+          autoCheckForUpdates().catch(() => {});
+        }, 2000);
+      } catch {}
+    })();
+  }, []);
 
   const handleLaunchComplete = useCallback(() => {
     setIsLaunchDone(true);
