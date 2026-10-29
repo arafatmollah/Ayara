@@ -22,22 +22,48 @@ export interface ReleaseItem {
 
 export const RELEASES_DATA: ReleaseItem[] = [
   {
+    version: '1.4.0',
+    title: 'Full Bangla Mode & Offline Bengali Quran',
+    date: 'October 2026',
+    isLatest: true,
+    highlight:
+      'Immerse in the Noble Quran with authentic Bengali translation by Maulana Muhiuddin Khan, bilingual translation switching, Bengali Surah names & meanings, and Bengali search.',
+    githubUrl: 'https://github.com/arafatmollah/Ayara/releases/tag/v1.4.0',
+    features: [
+      {
+        icon: 'language',
+        title: 'Complete Bangla Mode (বাংলা অনুবাদ ও উচ্চারণ)',
+        description:
+          'Offline Bengali translation for all 114 Surahs (6,236 Ayahs) by Maulana Muhiuddin Khan (King Fahd Complex & Islamic Foundation Bangladesh), with authentic Bengali Surah names, meanings, and Bismillah.',
+        tag: 'New',
+        badgeColor: '#059669',
+      },
+      {
+        icon: 'swap-horizontal',
+        title: 'Bilingual Translation Switcher',
+        description:
+          'Switch seamlessly between English, বাংলা (Bangla), and Both (উভয়টি) in Reader Settings or via a single-tap pill in the reader controls bar.',
+        tag: 'New',
+        badgeColor: '#10B981',
+      },
+      {
+        icon: 'search',
+        title: 'Bengali Quran Search',
+        description:
+          'Search for chapters using Bengali phonetic or literal terms (e.g. ফাতিহা, গাভী, কাহফ) directly from the Surahs library.',
+        tag: 'New',
+        badgeColor: '#6366F1',
+      },
+    ],
+  },
+  {
     version: '1.3.0',
     title: 'Daily Habit Reminders & Seamless Updates',
     date: 'October 2026',
-    isLatest: true,
     highlight:
       'Cultivate a lifelong connection to the Quran with gentle 12-hour reminders, automatic release notifications, and a dedicated What’s New hub.',
     githubUrl: 'https://github.com/arafatmollah/Ayara/releases/tag/v1.3.0',
     features: [
-      {
-        icon: 'language',
-        title: 'Full Bangla Mode (বাংলা অনুবাদ ও উচ্চারণ)',
-        description:
-          'Experience the Holy Quran with authentic Bengali translation by Maulana Muhiuddin Khan, Bengali Surah names & meanings, Bengali Bismillah, and quick bilingual switcher.',
-        tag: 'New',
-        badgeColor: '#059669',
-      },
       {
         icon: 'notifications',
         title: 'Daily Learn Reminders (12-Hour Format)',

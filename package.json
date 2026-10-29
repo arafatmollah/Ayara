@@ -1,6 +1,6 @@
 {
   "name": "quran",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/noto-naskh-arabic": "^0.4.5",
