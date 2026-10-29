@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, SHADOWS } from '../constants/theme';
 import { SurahMeta } from '../types/quran';
+import { BANGLA_SURAHS } from '../constants/banglaQuran';
 
 interface SurahCardProps {
   surah: SurahMeta;
@@ -13,6 +14,7 @@ interface SurahCardProps {
 
 export const SurahCard: React.FC<SurahCardProps> = ({ surah, isLastRead, lastReadAyah }) => {
   const isMeccan = surah.type === 'Meccan';
+  const bangla = BANGLA_SURAHS[surah.n];
 
   const handlePress = () => {
     try {
@@ -45,8 +47,9 @@ export const SurahCard: React.FC<SurahCardProps> = ({ surah, isLastRead, lastRea
 
         {/* Info text */}
         <View style={styles.infoCol}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
             <Text style={styles.titleEn}>{surah.en}</Text>
+            {bangla && <Text style={styles.titleBangla}>• {bangla.name}</Text>}
             {isLastRead && (
               <View style={styles.readingNowBadge}>
                 <Text style={styles.readingNowBadgeText}>
@@ -55,7 +58,9 @@ export const SurahCard: React.FC<SurahCardProps> = ({ surah, isLastRead, lastRea
               </View>
             )}
           </View>
-          <Text style={styles.meaningText}>{surah.meaning}</Text>
+          <Text style={styles.meaningText}>
+            {bangla ? `${bangla.meaning} • ${surah.meaning}` : surah.meaning}
+          </Text>
           <View style={styles.badgeRow}>
             <View
               style={[
@@ -130,6 +135,13 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.sansBold,
     fontSize: 16,
     color: COLORS.textPrimary,
+    marginBottom: 2,
+  },
+  titleBangla: {
+    fontFamily: FONTS.sansMedium,
+    fontSize: 13.5,
+    color: COLORS.primaryDark,
+    marginLeft: 6,
     marginBottom: 2,
   },
   meaningText: {

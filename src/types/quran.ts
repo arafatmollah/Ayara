@@ -148,11 +148,14 @@ export interface QuizSessionResult {
   reviewedWordIds: string[];
 }
 
+export type TranslationLanguage = 'english' | 'bangla' | 'both';
+
 export interface AyahData {
   surah: number;
   ayah: number;
   arabic: string;
   english: string;
+  bangla?: string;
   transliteration: string;
   words?: WordData[];
 }
@@ -179,6 +182,7 @@ export interface LastReadItem {
 export interface ReaderSettings {
   arabicFontSize: number;
   showTranslation: boolean;
+  translationLanguage?: TranslationLanguage;
   showTransliteration: boolean;
   showWbw: boolean;
   reciter: string;

@@ -351,6 +351,15 @@ export const SOURCE_PROVENANCE: SourceProvenanceItem[] = [
     licenseOrStatus: 'Attributed / Free Non-Commercial Islamic Propagation',
   },
   {
+    layer: 'Bengali Translation',
+    title: 'পবিত্র কুরআনুল করীম (মাওলানা মুহিউদ্দীন খান)',
+    scholarOrOrganization: 'Maulana Muhiuddin Khan (King Fahd Complex & Islamic Foundation Bangladesh)',
+    editionOrStandard: 'Tafseer Maariful Quran Bengali Edition',
+    description: 'The most widely recognized and accepted Bengali translation, endorsed by Islamic Foundation Bangladesh and published by the King Fahd Holy Quran Printing Complex in Medina.',
+    verificationMethod: 'Automated 1:1 cross-checking with Tanzil Uthmani ayah counts across all 114 Surahs.',
+    licenseOrStatus: 'King Fahd Complex / Public Domain Islamic Propagation',
+  },
+  {
     layer: 'Transliteration',
     title: 'Academic Phonetic Pronunciation Guide',
     scholarOrOrganization: 'Standard International Phonetic Quranic Transliteration',

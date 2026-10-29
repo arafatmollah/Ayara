@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
+import * as Linking from 'expo-linking';
 import {
   useFonts as useArabicFonts,
   NotoNaskhArabic_400Regular,
@@ -23,7 +25,9 @@ import { AudioPlayerBar } from '../components/AudioPlayerBar';
 import { AyaraLaunchScreen } from '../components/AyaraLaunchScreen';
 import { COLORS } from '../constants/theme';
 import { enableDailyLearnReminder, getReminderSettings } from '../services/notifications';
-import { autoCheckForUpdates } from '../services/appUpdate';
+import { autoCheckForUpdates, getCurrentVersion } from '../services/appUpdate';
+import { WhatsNewModal } from '../components/WhatsNewModal';
+import { checkShouldShowWhatsNew } from '../constants/releaseNotes';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -45,6 +49,9 @@ export default function RootLayout() {
   // Track launch animation completion once per app lifecycle
   const [isLaunchDone, setIsLaunchDone] = useState(false);
   const isNativeSplashHiddenRef = useRef(false);
+
+  // What's New post-update modal state
+  const [isWhatsNewVisible, setIsWhatsNewVisible] = useState(false);
 
   const fontsLoaded = Boolean(arabicLoaded && sansLoaded);
 
@@ -72,9 +79,46 @@ export default function RootLayout() {
     })();
   }, []);
 
+  // Listen for user interaction with notifications (e.g. tapping "New Ayara Update Available")
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response?.notification?.request?.content?.data;
+      if (data?.type === 'app_update' && typeof data?.url === 'string') {
+        Linking.openURL(data.url).catch(() => {});
+      }
+    });
+
+    Notifications.getLastNotificationResponseAsync()
+      .then((response) => {
+        const data = response?.notification?.request?.content?.data;
+        if (data?.type === 'app_update' && typeof data?.url === 'string') {
+          Linking.openURL(data.url).catch(() => {});
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   const handleLaunchComplete = useCallback(() => {
     setIsLaunchDone(true);
   }, []);
+
+  // Show "What's New" modal automatically when user opens the app after updating
+  useEffect(() => {
+    if (isLaunchDone) {
+      const currentVer = getCurrentVersion();
+      checkShouldShowWhatsNew(currentVer).then((shouldShow) => {
+        if (shouldShow) {
+          setIsWhatsNewVisible(true);
+        }
+      });
+    }
+  }, [isLaunchDone]);
 
   if (!fontsLoaded) {
     return null;
@@ -121,6 +165,13 @@ export default function RootLayout() {
               animation: 'slide_from_right',
             }}
           />
+          <Stack.Screen
+            name="whats-new"
+            options={{
+              headerShown: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
         </Stack>
         <AudioPlayerBar />
 
@@ -128,6 +179,12 @@ export default function RootLayout() {
         {!isLaunchDone && (
           <AyaraLaunchScreen onAnimationComplete={handleLaunchComplete} />
         )}
+
+        {/* What's New Post-Update Greeting Modal */}
+        <WhatsNewModal
+          visible={isWhatsNewVisible}
+          onClose={() => setIsWhatsNewVisible(false)}
+        />
       </AudioProvider>
     </SafeAreaProvider>
   );

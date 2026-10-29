@@ -3,13 +3,14 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, SHADOWS } from '../constants/theme';
-import { AyahData, WordData } from '../types/quran';
+import { AyahData, TranslationLanguage, WordData } from '../types/quran';
 import { isSajdahAyah, toArabicNumerals } from '../constants/quranAccuracy';
 
 interface AyahItemProps {
   ayah: AyahData;
   fontSize: number;
   showTranslation: boolean;
+  translationLanguage?: TranslationLanguage;
   showTransliteration: boolean;
   showWbw: boolean;
   isBookmarked: boolean;
@@ -27,6 +28,7 @@ export const AyahItem: React.FC<AyahItemProps> = ({
   ayah,
   fontSize,
   showTranslation,
+  translationLanguage = 'english',
   showTransliteration,
   showWbw,
   isBookmarked,
@@ -235,10 +237,26 @@ export const AyahItem: React.FC<AyahItemProps> = ({
         </View>
       )}
 
-      {/* English Translation */}
+      {/* Translation (English, Bangla, or Both) */}
       {showTranslation && (
         <View style={styles.translationContainer}>
-          <Text style={styles.translationText}>{ayah.english}</Text>
+          {(translationLanguage === 'bangla' || translationLanguage === 'both') && !!ayah.bangla && (
+            <View style={translationLanguage === 'both' ? styles.banglaBlock : undefined}>
+              {translationLanguage === 'both' && (
+                <Text style={styles.translationLangBadge}>বাংলা (মুহিউদ্দীন খান)</Text>
+              )}
+              <Text style={styles.banglaText}>{ayah.bangla}</Text>
+            </View>
+          )}
+
+          {(translationLanguage === 'english' || translationLanguage === 'both' || !ayah.bangla) && (
+            <View style={translationLanguage === 'both' && !!ayah.bangla ? styles.englishBlock : undefined}>
+              {translationLanguage === 'both' && !!ayah.bangla && (
+                <Text style={styles.translationLangBadge}>English (Saheeh Int.)</Text>
+              )}
+              <Text style={styles.translationText}>{ayah.english}</Text>
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -409,6 +427,27 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: COLORS.textPrimary,
     lineHeight: 24,
+  },
+  banglaText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 15.5,
+    color: COLORS.textPrimary,
+    lineHeight: 25,
+  },
+  banglaBlock: {
+    marginBottom: 10,
+  },
+  englishBlock: {
+    paddingTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.borderLight || '#F0EFEA',
+  },
+  translationLangBadge: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 10.5,
+    color: COLORS.primaryDark,
+    marginBottom: 3,
+    letterSpacing: 0.3,
   },
   arabicWordInteractive: {
     color: COLORS.textArabic,

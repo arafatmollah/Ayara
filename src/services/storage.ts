@@ -44,6 +44,7 @@ export interface DayHistoryRecord {
 export const DEFAULT_SETTINGS: ReaderSettings = {
   arabicFontSize: 28,
   showTranslation: true,
+  translationLanguage: 'english',
   showTransliteration: true,
   showWbw: false,
   reciter: 'Alafasy_128kbps',

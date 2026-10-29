@@ -1,5 +1,7 @@
 import metaJson from '../content/quran/meta.json';
 import { surahLoaders, wbwLoaders, morphologyLoaders } from '../content/quran/loaders.generated';
+import { banglaLoaders } from '../content/quran/banglaLoaders.generated';
+import { BANGLA_SURAHS, BanglaSurahInfo } from '../constants/banglaQuran';
 import rootsDictJson from '../content/quran/roots-dictionary.json';
 import { AyahData, JuzMeta, SurahMeta, WordData } from '../types/quran';
 
@@ -19,6 +21,10 @@ export function getSurahMeta(n: number): SurahMeta | undefined {
   return surahMap.get(n);
 }
 
+export function getBanglaSurahInfo(n: number): BanglaSurahInfo | undefined {
+  return BANGLA_SURAHS[n];
+}
+
 export function getAllJuz(): JuzMeta[] {
   return juzList;
 }
@@ -32,6 +38,7 @@ export function getSurahAyahs(surahNumber: number): AyahData[] {
   if (!loader) return [];
 
   const rawVerses = loader();
+  const rawBangla = banglaLoaders[surahNumber] ? banglaLoaders[surahNumber]() : null;
   const wbwLoader = wbwLoaders[surahNumber];
   const rawWbw = wbwLoader ? wbwLoader() : null;
   const morphLoader = morphologyLoaders[surahNumber];
@@ -67,6 +74,7 @@ export function getSurahAyahs(surahNumber: number): AyahData[] {
       ayah: ayahNum,
       arabic: v[0],
       english: v[1],
+      bangla: rawBangla && rawBangla[idx] ? rawBangla[idx] : undefined,
       transliteration: v[2],
       words,
     };
@@ -78,11 +86,13 @@ export function searchSurahs(query: string): SurahMeta[] {
   if (!q) return surahsList;
 
   return surahsList.filter((s) => {
+    const bn = BANGLA_SURAHS[s.n];
     return (
       s.n.toString() === q ||
       s.en.toLowerCase().includes(q) ||
       s.meaning.toLowerCase().includes(q) ||
-      s.ar.includes(q)
+      s.ar.includes(q) ||
+      (bn && (bn.name.toLowerCase().includes(q) || bn.meaning.toLowerCase().includes(q)))
     );
   });
 }

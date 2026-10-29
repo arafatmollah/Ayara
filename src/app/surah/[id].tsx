@@ -22,12 +22,26 @@ import {
   toggleBookmark,
   setLastRead,
   getReaderSettings,
+  saveReaderSettings,
   recordAyahRead,
   recordReadingTime,
   DEFAULT_SETTINGS,
 } from '../../services/storage';
 import { useQuranAudio } from '../../services/audioContext';
-import { AyahData, BookmarkItem, ReaderSettings, WordData, WordLearningDetails, SajdahAyahInfo } from '../../types/quran';
+import {
+  AyahData,
+  BookmarkItem,
+  ReaderSettings,
+  TranslationLanguage,
+  WordData,
+  WordLearningDetails,
+  SajdahAyahInfo,
+} from '../../types/quran';
+import {
+  BANGLA_BISMILLAH,
+  BANGLA_SURAHS,
+  toBanglaNumerals,
+} from '../../constants/banglaQuran';
 import { AyahItem } from '../../components/AyahItem';
 import { WordLearningModal } from '../../components/WordLearningModal';
 import { SajdahTilawahModal } from '../../components/SajdahTilawahModal';
@@ -47,6 +61,7 @@ export default function SurahReaderScreen() {
   const targetAyah = params.targetAyah ? parseInt(params.targetAyah, 10) : undefined;
 
   const surahMeta = useMemo(() => getSurahMeta(surahNumber), [surahNumber]);
+  const banglaInfo = useMemo(() => BANGLA_SURAHS[surahNumber], [surahNumber]);
   const ayahs = useMemo(() => getSurahAyahs(surahNumber), [surahNumber]);
 
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -88,15 +103,16 @@ export default function SurahReaderScreen() {
     });
 
     if (surahMeta) {
+      const isBn = settings.translationLanguage === 'bangla';
       setLastRead({
         surah: surahNumber,
         ayah: targetAyah || 1,
-        surahName: surahMeta.en,
+        surahName: isBn && banglaInfo ? banglaInfo.name : surahMeta.en,
         surahNameAr: surahMeta.ar,
         timestamp: Date.now(),
       });
     }
-  }, [surahNumber, targetAyah, surahMeta]);
+  }, [surahNumber, targetAyah, surahMeta, banglaInfo, settings.translationLanguage]);
 
   // Track progress when audio plays an ayah
   useEffect(() => {
@@ -104,16 +120,17 @@ export default function SurahReaderScreen() {
       readAyahsSetRef.current.add(currentAyah);
       recordAyahRead(surahNumber, currentAyah);
       if (surahMeta) {
+        const isBn = settings.translationLanguage === 'bangla';
         setLastRead({
           surah: surahNumber,
           ayah: currentAyah,
-          surahName: surahMeta.en,
+          surahName: isBn && banglaInfo ? banglaInfo.name : surahMeta.en,
           surahNameAr: surahMeta.ar,
           timestamp: Date.now(),
         });
       }
     }
-  }, [currentSurah, currentAyah, surahNumber, surahMeta]);
+  }, [currentSurah, currentAyah, surahNumber, surahMeta, banglaInfo, settings.translationLanguage]);
 
   // Scroll to target ayah if provided
   useEffect(() => {
@@ -130,14 +147,15 @@ export default function SurahReaderScreen() {
 
   const handleToggleBookmark = useCallback(async (item: AyahData) => {
     if (!surahMeta) return;
+    const isBn = settings.translationLanguage === 'bangla';
     const bookmarkItem: BookmarkItem = {
       id: `${item.surah}:${item.ayah}`,
       surah: item.surah,
       ayah: item.ayah,
-      surahName: surahMeta.en,
+      surahName: isBn && banglaInfo ? banglaInfo.name : surahMeta.en,
       surahNameAr: surahMeta.ar,
       arabicSnippet: item.arabic,
-      translationSnippet: item.english,
+      translationSnippet: isBn && item.bangla ? item.bangla : item.english,
       timestamp: Date.now(),
     };
 
@@ -151,7 +169,7 @@ export default function SurahReaderScreen() {
       }
       return next;
     });
-  }, [surahMeta]);
+  }, [surahMeta, banglaInfo, settings.translationLanguage]);
 
   const isCurrentSurahPlaying = currentSurah === surahNumber && isPlaying;
 
@@ -178,6 +196,17 @@ export default function SurahReaderScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {}
     setFocusMode((prev) => !prev);
+  };
+
+  const handleCycleTranslationLanguage = async () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    const currentLang = settings.translationLanguage || 'english';
+    const nextLang: TranslationLanguage =
+      currentLang === 'english' ? 'bangla' : currentLang === 'bangla' ? 'both' : 'english';
+    const updated = await saveReaderSettings({ translationLanguage: nextLang });
+    setSettings(updated);
   };
 
   const handleAdjustFontSize = (delta: number) => {
@@ -282,12 +311,28 @@ export default function SurahReaderScreen() {
           style={styles.surahBanner}
         >
           <Text style={styles.bannerArabicTitle}>{surahMeta.ar}</Text>
-          <Text style={styles.bannerEnTitle}>{surahMeta.en}</Text>
-          <Text style={styles.bannerMeaning}>{surahMeta.meaning}</Text>
+          <Text style={styles.bannerEnTitle}>
+            {settings.translationLanguage === 'bangla' && banglaInfo
+              ? `${banglaInfo.name} (${surahMeta.en})`
+              : surahMeta.en}
+          </Text>
+          <Text style={styles.bannerMeaning}>
+            {settings.translationLanguage === 'bangla' && banglaInfo
+              ? `${banglaInfo.meaning} • ${surahMeta.meaning}`
+              : surahMeta.meaning}
+          </Text>
           <View style={styles.bannerMetaRow}>
-            <Text style={styles.bannerBadge}>{surahMeta.type}</Text>
+            <Text style={styles.bannerBadge}>
+              {settings.translationLanguage === 'bangla' && banglaInfo
+                ? banglaInfo.type
+                : surahMeta.type}
+            </Text>
             <Text style={styles.bannerDot}>•</Text>
-            <Text style={styles.bannerBadge}>{surahMeta.ayahs} Verses</Text>
+            <Text style={styles.bannerBadge}>
+              {settings.translationLanguage === 'bangla'
+                ? `${toBanglaNumerals(surahMeta.ayahs)} আয়াত`
+                : `${surahMeta.ayahs} Verses`}
+            </Text>
           </View>
         </LinearGradient>
       )}
@@ -333,6 +378,42 @@ export default function SurahReaderScreen() {
             ]}
           >
             Word by Word
+          </Text>
+        </TouchableOpacity>
+
+        {/* Translation Language Pill */}
+        <TouchableOpacity
+          style={[
+            styles.togglePill,
+            (settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both') &&
+              styles.togglePillActive,
+          ]}
+          onPress={handleCycleTranslationLanguage}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Switch translation language between English, Bangla, and Both"
+        >
+          <Ionicons
+            name="language-outline"
+            size={13}
+            color={
+              settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both'
+                ? COLORS.textInverse
+                : COLORS.primaryDark
+            }
+          />
+          <Text
+            style={[
+              styles.togglePillText,
+              (settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both') &&
+                styles.togglePillTextActive,
+            ]}
+          >
+            {settings.translationLanguage === 'bangla'
+              ? 'বাংলা'
+              : settings.translationLanguage === 'both'
+              ? 'বাংলা+EN'
+              : 'EN'}
           </Text>
         </TouchableOpacity>
 
@@ -421,6 +502,9 @@ export default function SurahReaderScreen() {
       {surahMeta.bismillah && (
         <View style={styles.bismillahBox}>
           <Text style={styles.bismillahText}>{BISMILLAH_TEXT}</Text>
+          {(settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both') && (
+            <Text style={styles.bismillahBanglaText}>{BANGLA_BISMILLAH}</Text>
+          )}
         </View>
       )}
     </View>
@@ -441,9 +525,13 @@ export default function SurahReaderScreen() {
 
         <View style={styles.navTitleCol}>
           <Text style={styles.navTitle} numberOfLines={1}>
-            {surahMeta.en}
+            {settings.translationLanguage === 'bangla' && banglaInfo ? banglaInfo.name : surahMeta.en}
           </Text>
-          <Text style={styles.navSub}>Surah {surahMeta.n} • {surahMeta.ayahs} Verses</Text>
+          <Text style={styles.navSub}>
+            {settings.translationLanguage === 'bangla' && banglaInfo
+              ? `সূরা ${toBanglaNumerals(surahMeta.n)} • ${toBanglaNumerals(surahMeta.ayahs)} আয়াত`
+              : `Surah ${surahMeta.n} • ${surahMeta.ayahs} Verses`}
+          </Text>
         </View>
 
         <View style={styles.navRightGroup}>
@@ -529,6 +617,7 @@ export default function SurahReaderScreen() {
               ayah={item}
               fontSize={settings.arabicFontSize}
               showTranslation={settings.showTranslation}
+              translationLanguage={settings.translationLanguage}
               showTransliteration={settings.showTransliteration}
               showWbw={settings.showWbw}
               isBookmarked={isItemBookmarked}
@@ -822,6 +911,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: COLORS.primaryDark,
     textAlign: 'center',
+  },
+  bismillahBanglaText: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 13.5,
+    color: COLORS.primaryDark,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
+    opacity: 0.9,
   },
   errorBox: {
     flex: 1,

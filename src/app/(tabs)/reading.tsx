@@ -16,6 +16,7 @@ import { getLastRead } from '../../services/storage';
 import { SurahCard } from '../../components/SurahCard';
 import { JuzCard } from '../../components/JuzCard';
 import { LastReadItem, RevelationType } from '../../types/quran';
+import { BANGLA_SURAHS } from '../../constants/banglaQuran';
 
 type ViewMode = 'surahs' | 'juz';
 type FilterType = 'All' | RevelationType;
@@ -42,13 +43,16 @@ export default function ReadingLibraryScreen() {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
-      result = result.filter(
-        (s) =>
+      result = result.filter((s) => {
+        const bn = BANGLA_SURAHS[s.n];
+        return (
           s.n.toString() === q ||
           s.en.toLowerCase().includes(q) ||
           s.meaning.toLowerCase().includes(q) ||
-          s.ar.includes(q)
-      );
+          s.ar.includes(q) ||
+          (bn && (bn.name.toLowerCase().includes(q) || bn.meaning.toLowerCase().includes(q)))
+        );
+      });
     }
     return result;
   }, [allSurahs, selectedFilter, searchQuery]);

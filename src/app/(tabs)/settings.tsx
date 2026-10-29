@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   ScrollView,
@@ -27,16 +28,25 @@ import {
   getContentErrorReports,
 } from '../../services/storage';
 import { useQuranAudio, RECITERS_LIST } from '../../services/audioContext';
-import { ReaderSettings, UserProfile, ContentErrorReport } from '../../types/quran';
+import { ReaderSettings, TranslationLanguage, UserProfile, ContentErrorReport } from '../../types/quran';
 import { SourcesTransparencyModal } from '../../components/SourcesTransparencyModal';
 import { WaqfSignsModal } from '../../components/WaqfSignsModal';
 import { ContentErrorReportModal } from '../../components/ContentErrorReportModal';
+import { WhatsNewModal } from '../../components/WhatsNewModal';
 import {
   enableDailyLearnReminder,
   disableLearnReminder,
   getReminderSettings,
   setReminderTime,
+  formatReminderTime12h,
 } from '../../services/notifications';
+import { getCurrentVersion, manualCheckForUpdates } from '../../services/appUpdate';
+
+const REMINDER_PRESETS = [
+  { hour: 20, minute: 0, label: '8:00 PM' },
+  { hour: 21, minute: 0, label: '9:00 PM' },
+  { hour: 22, minute: 0, label: '10:00 PM' },
+];
 
 export default function SettingsScreen() {
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -57,7 +67,23 @@ export default function SettingsScreen() {
   const [reminderHour, setReminderHour] = useState(22);
   const [reminderMinute, setReminderMinute] = useState(0);
 
+  // App Update Check & What's New
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [isWhatsNewVisible, setIsWhatsNewVisible] = useState(false);
+
   const audio = useQuranAudio();
+
+  const handleCheckForUpdates = async () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    setIsCheckingUpdate(true);
+    try {
+      await manualCheckForUpdates();
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
 
   useEffect(() => {
     getReaderSettings().then(setSettings);
@@ -230,9 +256,11 @@ export default function SettingsScreen() {
 
           <View style={styles.toggleRow}>
             <View style={styles.toggleTextCol}>
-              <Text style={styles.rowTitle}>Reminder at 10:00 PM</Text>
+              <Text style={styles.rowTitle}>
+                Reminder at {formatReminderTime12h(reminderHour, reminderMinute)}
+              </Text>
               <Text style={styles.rowSub}>
-                {String(reminderHour).padStart(2, '0')}:{String(reminderMinute).padStart(2, '0')} daily
+                {formatReminderTime12h(reminderHour, reminderMinute)} daily
               </Text>
             </View>
             <Switch
@@ -246,35 +274,27 @@ export default function SettingsScreen() {
           <View style={styles.divider} />
 
           <View style={styles.rowBetween}>
-            <View>
+            <View style={{ flex: 1, marginRight: 12 }}>
               <Text style={styles.rowTitle}>Reminder Time</Text>
-              <Text style={styles.rowSub}>Tap to set time (default 22:00)</Text>
+              <Text style={styles.rowSub}>Tap to set time (default 10:00 PM)</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TouchableOpacity
-                style={[styles.fontBtn, { paddingHorizontal: 10 }]}
-                onPress={() => handleUpdateReminderTime(21, 0)}
-                accessibilityRole="button"
-                accessibilityLabel="Set reminder to 9 PM"
-              >
-                <Text style={styles.rowTitle}>21:00</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.fontBtn, { paddingHorizontal: 10 }]}
-                onPress={() => handleUpdateReminderTime(22, 0)}
-                accessibilityRole="button"
-                accessibilityLabel="Set reminder to 10 PM"
-              >
-                <Text style={styles.rowTitle}>22:00</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.fontBtn, { paddingHorizontal: 10 }]}
-                onPress={() => handleUpdateReminderTime(20, 0)}
-                accessibilityRole="button"
-                accessibilityLabel="Set reminder to 8 PM"
-              >
-                <Text style={styles.rowTitle}>20:00</Text>
-              </TouchableOpacity>
+              {REMINDER_PRESETS.map((preset) => {
+                const isSelected = reminderHour === preset.hour && reminderMinute === preset.minute;
+                return (
+                  <TouchableOpacity
+                    key={`${preset.hour}:${preset.minute}`}
+                    style={[styles.timePill, isSelected && styles.timePillActive]}
+                    onPress={() => handleUpdateReminderTime(preset.hour, preset.minute)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Set reminder to ${preset.label}`}
+                  >
+                    <Text style={[styles.timePillText, isSelected && styles.timePillTextActive]}>
+                      {preset.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         </View>
@@ -335,8 +355,8 @@ export default function SettingsScreen() {
 
           <View style={styles.toggleRow}>
             <View style={styles.toggleTextCol}>
-              <Text style={styles.rowTitle}>English Translation</Text>
-              <Text style={styles.rowSub}>Saheeh International translation</Text>
+              <Text style={styles.rowTitle}>Translation</Text>
+              <Text style={styles.rowSub}>Show ayah translation below Arabic</Text>
             </View>
             <Switch
               value={settings.showTranslation}
@@ -345,6 +365,41 @@ export default function SettingsScreen() {
               thumbColor={settings.showTranslation ? COLORS.primaryDark : '#f4f3f4'}
             />
           </View>
+
+          {settings.showTranslation && (
+            <View style={styles.langSelectorBox}>
+              <Text style={styles.langSelectorTitle}>Translation Language / অনুবাদের ভাষা</Text>
+              <View style={styles.langOptionsRow}>
+                {[
+                  { id: 'english', label: 'English', sub: 'Saheeh Int.' },
+                  { id: 'bangla', label: 'বাংলা', sub: 'মুহিউদ্দীন খান' },
+                  { id: 'both', label: 'উভয়টি', sub: 'English + বাংলা' },
+                ].map((opt) => {
+                  const isSelected = (settings.translationLanguage || 'english') === opt.id;
+                  return (
+                    <TouchableOpacity
+                      key={opt.id}
+                      style={[styles.langOptionBtn, isSelected && styles.langOptionBtnActive]}
+                      onPress={() => {
+                        try {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        } catch {}
+                        updateSettings({ translationLanguage: opt.id as TranslationLanguage });
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.langOptionLabel, isSelected && styles.langOptionLabelActive]}>
+                        {opt.label}
+                      </Text>
+                      <Text style={[styles.langOptionSub, isSelected && styles.langOptionSubActive]}>
+                        {opt.sub}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
 
           <View style={styles.divider} />
 
@@ -627,11 +682,46 @@ export default function SettingsScreen() {
 
         {/* About App Info */}
         <View style={styles.aboutCard}>
-          <Text style={styles.aboutTitle}>Ayara (آيَارَى) v1.2.0</Text>
+          <Text style={styles.aboutTitle}>Ayara (آيَارَى) v{getCurrentVersion()}</Text>
           <Text style={styles.aboutText}>
             Built with reverence, verified sources, and open-source transparency.{'\n'}
             May Allah accept this effort from all who recite, memorize, and learn.
           </Text>
+          <View style={styles.aboutActionsRow}>
+            <TouchableOpacity
+              style={styles.updateCheckBtn}
+              onPress={handleCheckForUpdates}
+              disabled={isCheckingUpdate}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Check for updates on GitHub"
+            >
+              {isCheckingUpdate ? (
+                <ActivityIndicator size="small" color={COLORS.primaryDark} />
+              ) : (
+                <>
+                  <Ionicons name="cloud-download-outline" size={16} color={COLORS.primaryDark} />
+                  <Text style={styles.updateCheckBtnText}>Check for Updates</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.whatsNewBtn}
+              onPress={() => {
+                try {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                } catch {}
+                setIsWhatsNewVisible(true);
+              }}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="View what's new in this release"
+            >
+              <Ionicons name="sparkles-outline" size={16} color={COLORS.primaryDark} />
+              <Text style={styles.whatsNewBtnText}>What’s New</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 
@@ -698,6 +788,12 @@ export default function SettingsScreen() {
         onSubmitted={(newReport) => {
           setSubmittedReports((prev) => [newReport, ...prev]);
         }}
+      />
+
+      {/* What's New Release Modal */}
+      <WhatsNewModal
+        visible={isWhatsNewVisible}
+        onClose={() => setIsWhatsNewVisible(false)}
       />
 
       {/* Submitted Reports Modal */}
@@ -1033,6 +1129,46 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     lineHeight: 20,
   },
+  aboutActionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 14,
+  },
+  updateCheckBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: COLORS.primarySurface,
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+  },
+  updateCheckBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 13,
+    color: COLORS.primaryDark,
+  },
+  whatsNewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: COLORS.surfaceSubtle,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  whatsNewBtnText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 13,
+    color: COLORS.primaryDark,
+  },
   goalPillsRow: {
     flexDirection: 'row',
     gap: 10,
@@ -1307,5 +1443,80 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: FONTS.sansRegular,
     color: COLORS.textMuted,
+  },
+  timePill: {
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: COLORS.primarySurface,
+    borderWidth: 1,
+    borderColor: COLORS.primaryBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timePillActive: {
+    backgroundColor: COLORS.primaryDark,
+    borderColor: COLORS.primaryDark,
+  },
+  timePillText: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 12,
+    color: COLORS.primaryDark,
+  },
+  timePillTextActive: {
+    color: COLORS.textInverse,
+  },
+  langSelectorBox: {
+    backgroundColor: COLORS.surfaceSubtle,
+    borderRadius: 14,
+    padding: 12,
+    marginTop: 8,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  langSelectorTitle: {
+    fontFamily: FONTS.sansSemiBold,
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  langOptionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  langOptionBtn: {
+    flex: 1,
+    paddingVertical: 9,
+    paddingHorizontal: 4,
+    borderRadius: 10,
+    backgroundColor: COLORS.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  langOptionBtnActive: {
+    backgroundColor: COLORS.primarySurface,
+    borderColor: COLORS.primaryDark,
+  },
+  langOptionLabel: {
+    fontFamily: FONTS.sansBold,
+    fontSize: 13,
+    color: COLORS.textPrimary,
+    marginBottom: 2,
+  },
+  langOptionLabelActive: {
+    color: COLORS.primaryDark,
+  },
+  langOptionSub: {
+    fontFamily: FONTS.sansRegular,
+    fontSize: 10,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  langOptionSubActive: {
+    color: COLORS.primaryDark,
+    fontFamily: FONTS.sansMedium,
   },
 });
