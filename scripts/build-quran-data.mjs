@@ -41,6 +41,16 @@ const ar = (await cachedJson('q-quran-uthmani.json', 'https://api.alquran.cloud/
 const en = (await cachedJson('q-en.sahih.json', 'https://api.alquran.cloud/v1/quran/en.sahih')).data;
 const tr = (await cachedJson('q-en.transliteration.json', 'https://api.alquran.cloud/v1/quran/en.transliteration')).data;
 
+// Typos present in the upstream en.transliteration edition, keyed by "surah:ayah".
+const TRANSLITERATION_FIXES = {
+  '2:255': [['wa mww khalfahum', 'wa maa khalfahum']],
+};
+const fixTransliteration = (n, ayah, text) =>
+  (TRANSLITERATION_FIXES[`${n}:${ayah}`] ?? []).reduce((t, [from, to]) => {
+    if (!t.includes(from)) throw new Error(`Transliteration fix for ${n}:${ayah} no longer matches: "${from}"`);
+    return t.replace(from, to);
+  }, text);
+
 // ---------- Surah text ----------
 const surahMeta = [];
 let bismillahText = null;
@@ -58,7 +68,7 @@ for (let i = 0; i < 114; i++) {
         throw new Error(`Expected bismillah prefix in surah ${n}`);
       }
     }
-    return [arabic, en.surahs[i].ayahs[j].text.trim(), tr.surahs[i].ayahs[j].text.trim()];
+    return [arabic, en.surahs[i].ayahs[j].text.trim(), fixTransliteration(n, j + 1, tr.surahs[i].ayahs[j].text.trim())];
   });
   fs.writeFileSync(path.join(OUT_QURAN, 'surahs', `${pad3(n)}.json`), JSON.stringify(verses));
   surahMeta.push({

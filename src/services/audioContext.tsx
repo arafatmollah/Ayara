@@ -61,6 +61,8 @@ export const RECITERS_LIST: ReciterInfo[] = [
   },
 ];
 
+export type PlayMode = 'surah' | 'single';
+
 interface AudioContextType {
   currentSurah: number | null;
   currentAyah: number | null;
@@ -69,8 +71,10 @@ interface AudioContextType {
   currentTime: number;
   duration: number;
   reciter: string;
+  playMode: PlayMode;
+  setPlayMode: (mode: PlayMode) => void;
   setReciter: (id: string) => void;
-  playAyah: (surah: number, ayah: number) => void;
+  playAyah: (surah: number, ayah: number, mode?: PlayMode) => void;
   togglePlay: () => void;
   playNext: () => void;
   playPrevious: () => void;
@@ -85,17 +89,19 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentSurah, setCurrentSurah] = useState<number | null>(null);
   const [currentAyah, setCurrentAyah] = useState<number | null>(null);
   const [reciter, setReciterState] = useState<string>('Alafasy_128kbps');
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [playMode, setPlayMode] = useState<PlayMode>('single');
 
-  const player = useAudioPlayer(audioUrl);
+  // Passing a changing source to useAudioPlayer recreates the player, which drops
+  // the finish event needed for auto-advance; keep one player and use replace().
+  const player = useAudioPlayer(null);
   const status = useAudioPlayerStatus(player);
 
   const isTransitioningRef = useRef(false);
-  const stateRef = useRef({ currentSurah, currentAyah, reciter });
+  const stateRef = useRef({ currentSurah, currentAyah, reciter, playMode });
 
   useEffect(() => {
-    stateRef.current = { currentSurah, currentAyah, reciter };
-  }, [currentSurah, currentAyah, reciter]);
+    stateRef.current = { currentSurah, currentAyah, reciter, playMode };
+  }, [currentSurah, currentAyah, reciter, playMode]);
 
   useEffect(() => {
     getReaderSettings().then((s) => {
@@ -107,13 +113,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     isTransitioningRef.current = true;
     setCurrentSurah(surah);
     setCurrentAyah(ayah);
-    const url = `https://everyayah.com/data/${activeReciter}/${pad3(surah)}${pad3(ayah)}.mp3`;
-    setAudioUrl(url);
-
-    if (player) {
-      player.replace(url);
-      player.play();
-    }
+    player.replace(`https://everyayah.com/data/${activeReciter}/${pad3(surah)}${pad3(ayah)}.mp3`);
+    player.play();
     setTimeout(() => {
       isTransitioningRef.current = false;
     }, 400);
@@ -127,12 +128,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const playAyah = (surah: number, ayah: number) => {
+  const playAyah = (surah: number, ayah: number, mode?: PlayMode) => {
+    if (mode) setPlayMode(mode);
     playAyahWithReciter(surah, ayah, reciter);
   };
 
   const togglePlay = () => {
-    if (!player) return;
     if (status.playing) {
       player.pause();
     } else {
@@ -141,12 +142,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const stop = () => {
-    if (player) {
-      player.pause();
-    }
+    player.pause();
     setCurrentSurah(null);
     setCurrentAyah(null);
-    setAudioUrl(null);
   };
 
   const playNext = () => {
@@ -186,8 +184,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   // Handle auto-advance when ayah finishes
   useEffect(() => {
     if (status.didJustFinish && !isTransitioningRef.current) {
-      const { currentSurah: s, currentAyah: a, reciter: r } = stateRef.current;
+      const { currentSurah: s, currentAyah: a, reciter: r, playMode: mode } = stateRef.current;
       if (s && a) {
+        if (mode === 'single') {
+          player.pause();
+          player.seekTo(0);
+          return;
+        }
         const meta = getSurahMeta(s);
         if (meta && a < meta.ayahs) {
           playAyahWithReciterRef.current(s, a + 1, r);
@@ -196,7 +199,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [status.didJustFinish]);
+  }, [status.didJustFinish, player]);
 
   return (
     <AudioContext.Provider
@@ -208,6 +211,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         currentTime: status.currentTime,
         duration: status.duration,
         reciter,
+        playMode,
+        setPlayMode,
         setReciter,
         playAyah,
         togglePlay,

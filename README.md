@@ -25,7 +25,7 @@ Get the latest APK release directly on your Android device:
 
 | Release | Download Link | Description |
 | :--- | :--- | :--- |
-| **Latest Android APK** | [**Download Ayara.apk (v1.2.0)**](https://github.com/arafatmollah/Ayara/releases/latest/download/Ayara.apk) | Direct standalone Android APK installable on all modern Android devices |
+| **Latest Android APK** | [**Download Ayara.apk (v1.5.0)**](https://github.com/arafatmollah/Ayara/releases/latest/download/Ayara.apk) | Direct standalone Android APK installable on all modern Android devices |
 | **All Releases & Notes** | [**GitHub Releases Archive**](https://github.com/arafatmollah/Ayara/releases) | Full changelog, release notes, and version history |
 | **Web Version** | [**Run in Web Browser**](http://localhost:8081) | Run locally with `npx expo start --web` |
 
@@ -50,7 +50,15 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 2. 📖 Interactive Word-by-Word Quran Reader
+### 2. 🇧🇩 Full Bangla Mode (বাংলা অনুবাদ ও উচ্চারণ)
+- **Offline Bengali Translation for all 114 Surahs (6,236 Ayahs)**: Authentic translation by Maulana Muhiuddin Khan (King Fahd Complex & Islamic Foundation Bangladesh), stored completely offline with zero network latency.
+- **Authentic Bengali Surah Names & Meanings**: Complete Bengali titular and contextual metadata for all Surahs alongside Bengali Bismillah.
+- **Bilingual Translation Switcher**: Seamlessly switch between English, বাংলা (Bangla), and Both (উভয়টি) in Reader Settings or via a single-tap pill in the reader controls bar.
+- **Bengali Quran Search**: Direct phonetic and literal search in Bengali script (e.g. ফাতিহা, গাভী, কাহফ) from the Surahs library.
+
+---
+
+### 3. 📖 Interactive Word-by-Word Quran Reader
 - **1-Tap Word Learning**: Tap any Arabic word in any Ayah to open its detailed morphology card.
 - **Root Analysis (`جَذْر`)**: View the 3-letter Arabic root, its foundational meaning, and total Quranic frequency.
 - **Grammar & Morphology**: Clear grammatical breakdown (Part of Speech, Grammatical Case, Derived Forms, Roles).
@@ -60,7 +68,7 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 2. 🧠 Spaced-Repetition Vocabulary Trainer (SRS Engine)
+### 4. 🧠 Spaced-Repetition Vocabulary Trainer (SRS Engine)
 - **SuperMemo-2 (SM-2) Algorithm**: Intelligent intervals calculating optimal review dates based on memory strength and ease factor.
 - **Dual Recognition Flashcards**: Practice Arabic-to-English meaning recall and English-to-Arabic recognition.
 - **Multiple-Choice Quizzes**: Test understanding with realistic distractors generated from genuine Quranic roots.
@@ -74,7 +82,7 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 3. 🎯 Quran Memorization Mode (Hifz & Muraja'ah)
+### 5. 🎯 Quran Memorization Mode (Hifz & Muraja'ah)
 - **Targeted Practice**: Select any Surah and customize exact verse ranges (e.g. Verses 1 to 10).
 - **Audio Reciter Companion**: Continuous audio playback with configurable loop and repetition counters per verse.
 - **Adaptive Verse Masking**:
@@ -86,7 +94,15 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 4. 🌿 Daily Learning Missions (خُطَّةُ الاِسْتِقَامَةِ)
+### 6. 🎧 Continuous Surah Recitation & Ayah Focus Audio
+- **Multi-Reciter Mastery**: Stream verified EveryAyah recitations from 5 master Huffaz (Sheikh Mishary Rashid Alafasy, Sheikh AbdulBaset AbdulSamad, Sheikh Maher Al-Muaiqly, Sheikh Abu Bakr Al-Shatri, Sheikh Mahmoud Khalil Al-Husary).
+- **Continuous Mode vs Single-Ayah Focus**: Toggle continuous whole-surah recitation or focused single-verse playback (`infinite` toggle on the mini player and "Play All" on the Surah screen).
+- **Single-Ayah Auto-Pause**: Individual ayah playback automatically pauses at completion without unintentionally overflowing into adjacent verses.
+- **Persistent Floating Player Bar**: Interactive mini-player with live buffering status, playback mode badge, ayah counter, and transport controls.
+
+---
+
+### 7. 🌿 Daily Learning Missions (خُطَّةُ الاِسْتِقَامَةِ)
 - **Balanced Daily Spiritual Routine**: Keeps sacred worship separate from competitive gamification.
   - 📖 **Read Verses**: Fulfill your personal daily reading target.
   - 🧠 **Learn Words**: Discover new Quranic vocabulary with root insights.
@@ -96,7 +112,7 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 5. 🎓 Structured Quranic Arabic Learning Paths (مَسَارَاتُ العَرَبِيَّةِ)
+### 8. 🎓 Structured Quranic Arabic Learning Paths (مَسَارَاتُ العَرَبِيَّةِ)
 - Complete structured curriculum with 5 progressive courses and 20 interactive lessons:
   1. **Course 1: High-Frequency Quranic Words** — Master the words that make up over 80% of the Quranic text.
   2. **Course 2: Attached Pronouns & Markers (الضمائر المتصلة)** — Recognize possessive endings, subject markers, and object pronouns.
@@ -107,7 +123,14 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 6. ☀️ Quranic Word of the Day (`كَلِمَةُ الْيَوْمِ`)
+### 9. ⏰ Daily 12-Hour Habit Reminders & In-App Release Updates
+- **Gentle 12-Hour Reminders**: Schedule daily notifications at 8:00 PM, 9:00 PM, or 10:00 PM to review Quranic vocabulary without notification fatigue.
+- **In-App GitHub Update Checker**: Ayara automatically verifies latest GitHub releases and delivers direct download notifications.
+- **Dedicated Release Hub & What's New**: Discover newly shipped capabilities, detailed feature descriptions, and changelogs right from Settings or upon updating.
+
+---
+
+### 10. ☀️ Quranic Word of the Day (`كَلِمَةُ الْيَوْمِ`)
 - Daily curated Quranic word in bold Arabic calligraphy with full diacritics.
 - Transliteration, English meaning, and spiritual theme.
 - Root badge showing root letters and frequency count across the Quran.
@@ -117,18 +140,18 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 7. 🛡️ Blessed Surahs & Prophetic Sunnah Strip (`سُوَرٌ مُبَارَكَةٌ`)
+### 11. 🛡️ Blessed Surahs & Prophetic Sunnah Strip (`سُوَرٌ مُبَارَكَةٌ`)
 - Quick 1-tap shortcuts to Surahs and Ayahs with special Prophetic virtues:
   - 🌙 **Surah Al-Mulk** (Surah 67) — Night Sunnah, protection, and intercessor in the grave.
   - ☀️ **Surah Al-Kahf** (Surah 18) — Friday light illuminating between the two Fridays.
-  - 🛡️ **Ayat al-Kursi** (Surah 2:255) — The greatest verse of divine majesty and protection.
+  - 🛡️ **Ayat al-Kursi** (Surah 2:255) — The greatest verse of divine majesty and protection (with verified transliteration).
   - 💫 **Surah Ya-Sin** (Surah 36) — The radiant heart of the Quran.
   - 🌿 **Surah Ar-Rahman** (Surah 55) — The bride of the Quran celebrating Allah's boundless favors.
   - 🤍 **Surah Al-Ikhlas** (Surah 112) — Purity of faith, equivalent to reciting one-third of the Quran.
 
 ---
 
-### 8. 📿 Playful Tasbih & Dhikr Pulse (`تَسْبِيحُ الْقَلْبِ`)
+### 12. 📿 Playful Tasbih & Dhikr Pulse (`تَسْبِيحُ الْقَلْبِ`)
 - Interactive digital Dhikr counter on the Home screen.
 - Sacred Dhikr selector:
   - `سُبْحَانَ ٱللَّهِ` (SubhanAllah)
@@ -141,15 +164,14 @@ Get the latest APK release directly on your Android device:
 
 ---
 
-### 9. 🎨 Bright, White & Playful Launch Experience
-- Pure crisp white (`#FFFFFF`) canvas with warm sunbeam gold (`#FEF3C7`), soft pastel lavender (`#EDE9FE`), and fresh mint (`#D1FAE5`) radiant glow.
-- Modern Sunset Amethyst Arch emblem with gilded Quran book pages and playful golden bookmark ribbon.
-- Cheerful spring bounce entrance animation with celestial sparkle stars.
-- Accessibility-compliant with automatic reduced-motion detection.
+### 13. 🎨 Sunset Amethyst Visual Identity & Resilient Navigation
+- **Sunset Amethyst Palette**: Refined `#6121C5` branding across Android adaptive icons (foreground, background, monochrome), splash screen, and web favicon.
+- **Resilient Deep-Link Navigation**: Built-in safe router back navigation preventing dead ends when launched via notifications, deep links, or web browser refreshes.
+- **Accessibility & Motion Compliance**: Cheerful spring bounce animations with automatic reduced-motion detection.
 
 ---
 
-### 10. 📊 Khatmah Tracker & Personal Reading Analytics
+### 14. 📊 Khatmah Tracker & Personal Reading Analytics
 - **Khatmah Journey**: Real-time progress bar tracking unique verses recited out of all 6,236 Ayahs.
 - **Hasanat Metric Counter**: Reflective spiritual counter (10x reward multiplier per recited letter).
 - **Reading Time & Verses recited**: Segmented analytics across *Today*, *This Week*, and *All Time*.

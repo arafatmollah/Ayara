@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
+import { goBack } from '../../services/navigation';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -82,7 +83,7 @@ export default function SurahReaderScreen() {
   const [reportTargetAyah, setReportTargetAyah] = useState<AyahData | null>(null);
   const [reportWordData, setReportWordData] = useState<{ wordText?: string; wordIndex?: number } | null>(null);
 
-  const { currentSurah, currentAyah, isPlaying, playAyah, togglePlay } = useQuranAudio();
+  const { currentSurah, currentAyah, isPlaying, playMode, setPlayMode, playAyah, togglePlay } = useQuranAudio();
 
   // Track verses read in this session to prevent duplicate counts
   const readAyahsSetRef = useRef<Set<number>>(new Set());
@@ -172,15 +173,29 @@ export default function SurahReaderScreen() {
   }, [surahMeta, banglaInfo, settings.translationLanguage]);
 
   const isCurrentSurahPlaying = currentSurah === surahNumber && isPlaying;
+  const isSurahModePlaying = isCurrentSurahPlaying && playMode === 'surah';
 
   const handlePlayAll = () => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {}
-    if (isCurrentSurahPlaying) {
+    if (currentSurah === surahNumber && currentAyah) {
+      if (playMode === 'surah') {
+        togglePlay();
+      } else {
+        setPlayMode('surah');
+        if (!isPlaying) togglePlay();
+      }
+    } else {
+      playAyah(surahNumber, 1, 'surah');
+    }
+  };
+
+  const handlePlayAyah = (ayah: number) => {
+    if (currentSurah === surahNumber && currentAyah === ayah) {
       togglePlay();
     } else {
-      playAyah(surahNumber, currentSurah === surahNumber && currentAyah ? currentAyah : 1);
+      playAyah(surahNumber, ayah, currentSurah === surahNumber ? undefined : 'single');
     }
   };
 
@@ -292,7 +307,7 @@ export default function SurahReaderScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>Surah not found</Text>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity onPress={goBack} style={styles.backBtn}>
             <Text style={styles.backBtnText}>Go Back</Text>
           </TouchableOpacity>
         </View>
@@ -483,17 +498,19 @@ export default function SurahReaderScreen() {
 
         {/* Play All Audio */}
         <TouchableOpacity
-          style={[styles.playAllPill, isCurrentSurahPlaying && styles.playAllPillActive]}
+          style={[styles.playAllPill, isSurahModePlaying && styles.playAllPillActive]}
           onPress={handlePlayAll}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={isSurahModePlaying ? 'Pause surah' : 'Play whole surah'}
         >
           <Ionicons
-            name={isCurrentSurahPlaying ? 'pause' : 'play'}
+            name={isSurahModePlaying ? 'pause' : 'play'}
             size={13}
             color={COLORS.textInverse}
           />
           <Text style={styles.playAllText}>
-            {isCurrentSurahPlaying ? 'Pause' : 'Play'}
+            {isSurahModePlaying ? 'Pause' : 'Play All'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -515,7 +532,7 @@ export default function SurahReaderScreen() {
       {/* Top Navbar */}
       <View style={styles.navbar}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={goBack}
           style={styles.navBackBtn}
           accessibilityRole="button"
           accessibilityLabel="Back"
@@ -624,7 +641,7 @@ export default function SurahReaderScreen() {
               isPlaying={isItemPlaying}
               focusMode={focusMode}
               selectedWordIndex={activeWordAyah === item.ayah ? activeWordIndex : null}
-              onPlay={() => playAyah(surahNumber, item.ayah)}
+              onPlay={() => handlePlayAyah(item.ayah)}
               onToggleBookmark={() => handleToggleBookmark(item)}
               onWordSelect={handleWordSelect}
               onSajdahPress={handleOpenSajdah}

@@ -3,7 +3,7 @@
     "name": "Ayara",
     "slug": "Ayara",
     "scheme": "ayara",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -14,7 +14,7 @@
     "android": {
       "package": "com.ayara.app",
       "adaptiveIcon": {
-        "backgroundColor": "#FFFFFF",
+        "backgroundColor": "#6121C5",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -33,9 +33,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FFFFFF",
+          "backgroundColor": "#6121C5",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 240
+          "imageWidth": 200
         }
       ],
       "expo-asset"

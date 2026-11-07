@@ -22,10 +22,52 @@ export interface ReleaseItem {
 
 export const RELEASES_DATA: ReleaseItem[] = [
   {
+    version: '1.5.0',
+    title: 'Visual Identity, Continuous Audio Mode & Navigation Resilience',
+    date: 'November 2026',
+    isLatest: true,
+    highlight:
+      'Immerse in Ayara with refreshed Sunset Amethyst branding, continuous whole-surah recitation or single-verse focus mode, resilient deep navigation, and enhanced Ayat al-Kursi transliteration.',
+    githubUrl: 'https://github.com/arafatmollah/Ayara/releases/tag/v1.5.0',
+    features: [
+      {
+        icon: 'musical-notes',
+        title: 'Continuous Audio Mode & Single-Verse Focus',
+        description:
+          'Seamlessly toggle continuous whole-surah recitation or single-Ayah study with the infinite playback toggle on the mini player and Surah reader.',
+        tag: 'New',
+        badgeColor: '#10B981',
+      },
+      {
+        icon: 'color-palette',
+        title: 'Refreshed Visual Identity & Brand Palette',
+        description:
+          'Updated Sunset Amethyst (#6121C5) adaptive icons, splash screen, and web favicon for a modern, elegant Quran reading experience.',
+        tag: 'Improved',
+        badgeColor: '#6366F1',
+      },
+      {
+        icon: 'navigate',
+        title: 'Resilient Deep-Link Navigation',
+        description:
+          'Smart back navigation fallback ensures you never get trapped in dead ends when opening Surahs, learning paths, or memorization from notifications, deep links, or web refreshes.',
+        tag: 'Improved',
+        badgeColor: '#059669',
+      },
+      {
+        icon: 'shield-checkmark',
+        title: 'Ayat al-Kursi Transliteration Accuracy',
+        description:
+          'Corrected phonetics in Surah Al-Baqarah 2:255 ("wa maa khalfahum") with reproducible build-time data validation.',
+        tag: 'Fix',
+        badgeColor: '#F59E0B',
+      },
+    ],
+  },
+  {
     version: '1.4.0',
     title: 'Full Bangla Mode & Offline Bengali Quran',
     date: 'October 2026',
-    isLatest: true,
     highlight:
       'Immerse in the Noble Quran with authentic Bengali translation by Maulana Muhiuddin Khan, bilingual translation switching, Bengali Surah names & meanings, and Bengali search.',
     githubUrl: 'https://github.com/arafatmollah/Ayara/releases/tag/v1.4.0',

@@ -8,7 +8,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
+import { goBack } from '../services/navigation';
 import * as Linking from 'expo-linking';
 import * as Haptics from 'expo-haptics';
 import { COLORS, FONTS, SHADOWS } from '../constants/theme';
@@ -29,7 +30,7 @@ export default function WhatsNewScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {}
     await markWhatsNewSeen(currentAppVersion);
-    router.back();
+    goBack();
   };
 
   const handleOpenGitHub = async () => {

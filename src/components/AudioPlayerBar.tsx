@@ -8,12 +8,23 @@ import { getSurahMeta } from '../services/quranData';
 
 export const AudioPlayerBar: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const { currentSurah, currentAyah, isPlaying, isBuffering, togglePlay, playNext, playPrevious, stop } =
-    useQuranAudio();
+  const {
+    currentSurah,
+    currentAyah,
+    isPlaying,
+    isBuffering,
+    playMode,
+    setPlayMode,
+    togglePlay,
+    playNext,
+    playPrevious,
+    stop,
+  } = useQuranAudio();
 
   if (!currentSurah || !currentAyah) return null;
 
   const surahMeta = getSurahMeta(currentSurah);
+  const isSurahMode = playMode === 'surah';
 
   return (
     <View style={[styles.wrapper, { bottom: Math.max(insets.bottom, 10) + 54 }]}>
@@ -23,14 +34,28 @@ export const AudioPlayerBar: React.FC = () => {
           <Text style={styles.surahTitle} numberOfLines={1}>
             {surahMeta?.en || `Surah ${currentSurah}`}
           </Text>
-          <Text style={styles.ayahSub}>
+          <Text style={styles.ayahSub} numberOfLines={1}>
             Ayah {currentAyah} of {surahMeta?.ayahs || ''}
-            {isBuffering ? ' • Buffering...' : ''}
+            {isBuffering ? ' • Buffering...' : isSurahMode ? ' • Full surah' : ' • Ayah only'}
           </Text>
         </View>
 
         {/* Controls */}
         <View style={styles.controlsRow}>
+          <TouchableOpacity
+            style={[styles.iconBtn, isSurahMode && styles.modeBtnActive]}
+            onPress={() => setPlayMode(isSurahMode ? 'single' : 'surah')}
+            accessibilityRole="switch"
+            accessibilityState={{ checked: isSurahMode }}
+            accessibilityLabel="Continue playing the whole surah"
+          >
+            <Ionicons
+              name={isSurahMode ? 'infinite' : 'infinite-outline'}
+              size={20}
+              color={isSurahMode ? COLORS.primary : COLORS.textMuted}
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.iconBtn}
             onPress={playPrevious}
@@ -121,6 +146,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  modeBtnActive: {
+    backgroundColor: COLORS.primarySurface,
   },
   playPauseBtn: {
     width: 40,
