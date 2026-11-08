@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -276,17 +277,23 @@ export default function SurahReaderScreen() {
     setIsReportModalVisible(true);
   };
 
+  const surahMetaRef = useRef(surahMeta);
+  useEffect(() => {
+    surahMetaRef.current = surahMeta;
+  }, [surahMeta]);
+
   // Record read progress and current reading position dynamically
   const handleViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: { item: AyahData }[] }) => {
-      if (viewableItems.length > 0 && surahMeta) {
+      const meta = surahMetaRef.current;
+      if (viewableItems.length > 0 && meta) {
         const top = viewableItems[0].item;
         if (top) {
           setLastRead({
             surah: surahNumber,
             ayah: top.ayah,
-            surahName: surahMeta.en,
-            surahNameAr: surahMeta.ar,
+            surahName: meta.en,
+            surahNameAr: meta.ar,
             timestamp: Date.now(),
           });
         }
@@ -299,7 +306,7 @@ export default function SurahReaderScreen() {
         }
       });
     },
-    [surahNumber, surahMeta]
+    [surahNumber]
   );
 
   if (!surahMeta) {
@@ -353,166 +360,173 @@ export default function SurahReaderScreen() {
       )}
 
       {/* Quick Controls Bar */}
-      <View style={styles.controlsBar}>
-        <View style={styles.fontAdjustRow}>
-          <TouchableOpacity
-            style={styles.ctrlBtn}
-            onPress={() => handleAdjustFontSize(-2)}
-            accessibilityRole="button"
-            accessibilityLabel="Decrease font size"
-          >
-            <Ionicons name="text" size={13} color={COLORS.primaryDark} />
-            <Text style={styles.ctrlBtnText}>-</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.ctrlBtn}
-            onPress={() => handleAdjustFontSize(2)}
-            accessibilityRole="button"
-            accessibilityLabel="Increase font size"
-          >
-            <Ionicons name="text" size={17} color={COLORS.primaryDark} />
-            <Text style={styles.ctrlBtnText}>+</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Word by word pill */}
-        <TouchableOpacity
-          style={[styles.togglePill, settings.showWbw && styles.togglePillActive]}
-          onPress={handleToggleWbw}
-          activeOpacity={0.7}
+      <View style={styles.controlsBarWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled
+          contentContainerStyle={styles.controlsBarContent}
         >
-          <Ionicons
-            name="grid-outline"
-            size={13}
-            color={settings.showWbw ? COLORS.textInverse : COLORS.primaryDark}
-          />
-          <Text
-            style={[
-              styles.togglePillText,
-              settings.showWbw && styles.togglePillTextActive,
-            ]}
-          >
-            Word by Word
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.fontAdjustRow}>
+            <TouchableOpacity
+              style={styles.ctrlBtn}
+              onPress={() => handleAdjustFontSize(-2)}
+              accessibilityRole="button"
+              accessibilityLabel="Decrease font size"
+            >
+              <Ionicons name="text" size={13} color={COLORS.primaryDark} />
+              <Text style={styles.ctrlBtnText}>-</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.ctrlBtn}
+              onPress={() => handleAdjustFontSize(2)}
+              accessibilityRole="button"
+              accessibilityLabel="Increase font size"
+            >
+              <Ionicons name="text" size={16} color={COLORS.primaryDark} />
+              <Text style={styles.ctrlBtnText}>+</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Translation Language Pill */}
-        <TouchableOpacity
-          style={[
-            styles.togglePill,
-            (settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both') &&
-              styles.togglePillActive,
-          ]}
-          onPress={handleCycleTranslationLanguage}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Switch translation language between English, Bangla, and Both"
-        >
-          <Ionicons
-            name="language-outline"
-            size={13}
-            color={
-              settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both'
-                ? COLORS.textInverse
-                : COLORS.primaryDark
-            }
-          />
-          <Text
+          {/* Word by word pill */}
+          <TouchableOpacity
+            style={[styles.togglePill, settings.showWbw && styles.togglePillActive]}
+            onPress={handleToggleWbw}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name="grid-outline"
+              size={14}
+              color={settings.showWbw ? COLORS.textInverse : COLORS.primaryDark}
+            />
+            <Text
+              style={[
+                styles.togglePillText,
+                settings.showWbw && styles.togglePillTextActive,
+              ]}
+            >
+              Word by Word
+            </Text>
+          </TouchableOpacity>
+
+          {/* Translation Language Pill */}
+          <TouchableOpacity
             style={[
-              styles.togglePillText,
+              styles.togglePill,
               (settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both') &&
-                styles.togglePillTextActive,
+                styles.togglePillActive,
             ]}
+            onPress={handleCycleTranslationLanguage}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Switch translation language between English, Bangla, and Both"
           >
-            {settings.translationLanguage === 'bangla'
-              ? 'বাংলা'
-              : settings.translationLanguage === 'both'
-              ? 'বাংলা+EN'
-              : 'EN'}
-          </Text>
-        </TouchableOpacity>
+            <Ionicons
+              name="language-outline"
+              size={14}
+              color={
+                settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both'
+                  ? COLORS.textInverse
+                  : COLORS.primaryDark
+              }
+            />
+            <Text
+              style={[
+                styles.togglePillText,
+                (settings.translationLanguage === 'bangla' || settings.translationLanguage === 'both') &&
+                  styles.togglePillTextActive,
+              ]}
+            >
+              {settings.translationLanguage === 'bangla'
+                ? 'বাংলা'
+                : settings.translationLanguage === 'both'
+                ? 'বাংলা+EN'
+                : 'EN'}
+            </Text>
+          </TouchableOpacity>
 
-        {/* Focus / Distraction-free Mode */}
-        <TouchableOpacity
-          style={[styles.togglePill, focusMode && styles.togglePillActive]}
-          onPress={handleToggleFocusMode}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Toggle Focus Mode"
-        >
-          <Ionicons
-            name={focusMode ? 'leaf' : 'leaf-outline'}
-            size={13}
-            color={focusMode ? COLORS.textInverse : COLORS.primaryDark}
-          />
-          <Text
-            style={[
-              styles.togglePillText,
-              focusMode && styles.togglePillTextActive,
-            ]}
+          {/* Focus / Distraction-free Mode */}
+          <TouchableOpacity
+            style={[styles.togglePill, focusMode && styles.togglePillActive]}
+            onPress={handleToggleFocusMode}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle Focus Mode"
           >
-            Focus
-          </Text>
-        </TouchableOpacity>
+            <Ionicons
+              name={focusMode ? 'leaf' : 'leaf-outline'}
+              size={14}
+              color={focusMode ? COLORS.textInverse : COLORS.primaryDark}
+            />
+            <Text
+              style={[
+                styles.togglePillText,
+                focusMode && styles.togglePillTextActive,
+              ]}
+            >
+              Focus
+            </Text>
+          </TouchableOpacity>
 
-        {/* Waqf Stopping Signs Guide */}
-        <TouchableOpacity
-          style={styles.togglePill}
-          onPress={() => {
-            try {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            } catch {}
-            setIsWaqfModalVisible(true);
-          }}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Quranic stopping marks and typography guide"
-        >
-          <Ionicons name="pause-circle-outline" size={13} color={COLORS.primaryDark} />
-          <Text style={styles.togglePillText}>Waqf</Text>
-        </TouchableOpacity>
+          {/* Waqf Stopping Signs Guide */}
+          <TouchableOpacity
+            style={styles.togglePill}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              } catch {}
+              setIsWaqfModalVisible(true);
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Quranic stopping marks and typography guide"
+          >
+            <Ionicons name="pause-circle-outline" size={14} color={COLORS.primaryDark} />
+            <Text style={styles.togglePillText}>Waqf</Text>
+          </TouchableOpacity>
 
-        {/* Memorization / Hifz Mode */}
-        <TouchableOpacity
-          style={styles.togglePill}
-          onPress={() => {
-            try {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            } catch {}
-            router.push({
-              pathname: '/memorize',
-              params: {
-                surah: surahNumber.toString(),
-                startAyah: '1',
-                endAyah: Math.min(surahMeta?.ayahs || 7, 7).toString(),
-              },
-            });
-          }}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel="Memorize Surah"
-        >
-          <Ionicons name="sparkles" size={13} color={COLORS.primaryDark} />
-          <Text style={styles.togglePillText}>Hifz</Text>
-        </TouchableOpacity>
+          {/* Memorization / Hifz Mode */}
+          <TouchableOpacity
+            style={styles.togglePill}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              } catch {}
+              router.push({
+                pathname: '/memorize',
+                params: {
+                  surah: surahNumber.toString(),
+                  startAyah: '1',
+                  endAyah: Math.min(surahMeta?.ayahs || 7, 7).toString(),
+                },
+              });
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Memorize Surah"
+          >
+            <Ionicons name="sparkles" size={14} color={COLORS.primaryDark} />
+            <Text style={styles.togglePillText}>Hifz</Text>
+          </TouchableOpacity>
 
-        {/* Play All Audio */}
-        <TouchableOpacity
-          style={[styles.playAllPill, isSurahModePlaying && styles.playAllPillActive]}
-          onPress={handlePlayAll}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel={isSurahModePlaying ? 'Pause surah' : 'Play whole surah'}
-        >
-          <Ionicons
-            name={isSurahModePlaying ? 'pause' : 'play'}
-            size={13}
-            color={COLORS.textInverse}
-          />
-          <Text style={styles.playAllText}>
-            {isSurahModePlaying ? 'Pause' : 'Play All'}
-          </Text>
-        </TouchableOpacity>
+          {/* Play All Audio */}
+          <TouchableOpacity
+            style={[styles.playAllPill, isSurahModePlaying && styles.playAllPillActive]}
+            onPress={handlePlayAll}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={isSurahModePlaying ? 'Pause surah' : 'Play whole surah'}
+          >
+            <Ionicons
+              name={isSurahModePlaying ? 'pause' : 'play'}
+              size={14}
+              color={COLORS.textInverse}
+            />
+            <Text style={styles.playAllText}>
+              {isSurahModePlaying ? 'Pause' : 'Play All'}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
       {/* Bismillah Banner (Surahs other than 1 and 9) */}
@@ -844,31 +858,37 @@ const styles = StyleSheet.create({
   bannerDot: {
     color: '#E0D4FC',
   },
-  controlsBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  controlsBarWrapper: {
     backgroundColor: COLORS.surface,
-    padding: 8,
-    borderRadius: 16,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: COLORS.border,
     marginBottom: 12,
+    overflow: 'hidden',
+    ...SHADOWS.sm,
+  },
+  controlsBarContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    gap: 9,
   },
   fontAdjustRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
+    flexShrink: 0,
   },
   ctrlBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    height: 34,
+    paddingHorizontal: 10,
+    borderRadius: 10,
     backgroundColor: COLORS.surfaceSubtle,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 2,
+    gap: 3,
   },
   ctrlBtnText: {
     fontFamily: FONTS.sansBold,
@@ -878,18 +898,19 @@ const styles = StyleSheet.create({
   togglePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-    borderRadius: 10,
+    gap: 6,
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    borderRadius: 12,
     backgroundColor: COLORS.surfaceSubtle,
+    flexShrink: 0,
   },
   togglePillActive: {
     backgroundColor: COLORS.primaryDark,
   },
   togglePillText: {
     fontFamily: FONTS.sansMedium,
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.primaryDark,
   },
   togglePillTextActive: {
@@ -898,18 +919,19 @@ const styles = StyleSheet.create({
   playAllPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
+    gap: 6,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 12,
     backgroundColor: COLORS.primary,
+    flexShrink: 0,
   },
   playAllPillActive: {
     backgroundColor: COLORS.goldDark,
   },
   playAllText: {
     fontFamily: FONTS.sansBold,
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.textInverse,
   },
   bismillahBox: {
