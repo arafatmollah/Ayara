@@ -22,10 +22,44 @@ export interface ReleaseItem {
 
 export const RELEASES_DATA: ReleaseItem[] = [
   {
+    version: '1.5.1',
+    title: 'Surah Controls Scrolling & Reader Stability Fixes',
+    date: 'November 2026',
+    isLatest: true,
+    highlight:
+      'Enhanced Surah reader ergonomics with a smooth horizontal scrollable quick controls bar, spacious touch-friendly action pills, and FlatList viewability stability fixes.',
+    githubUrl: 'https://github.com/arafatmollah/Ayara/releases/tag/v1.5.1',
+    features: [
+      {
+        icon: 'swap-horizontal',
+        title: 'Scrollable Quick Controls Bar',
+        description:
+          'Horizontal scrolling controls in the Surah reader ensure all actions (Word by Word, Language, Focus, Waqf, Hifz, Play All) fit cleanly without being clipped or crowded on narrower displays.',
+        tag: 'Improved',
+        badgeColor: '#6366F1',
+      },
+      {
+        icon: 'expand',
+        title: 'Spacious Tap Targets & Visual Breathing Room',
+        description:
+          'Increased padding and spacing across all quick control pills and font-size adjusters for effortless, comfortable tapping on mobile devices.',
+        tag: 'Improved',
+        badgeColor: '#10B981',
+      },
+      {
+        icon: 'shield-checkmark',
+        title: 'FlatList Viewability & Reading State Fix',
+        description:
+          'Resolved an Invariant Violation error during viewable items transition, ensuring seamless reading progress tracking across Web and Mobile.',
+        tag: 'Fix',
+        badgeColor: '#F59E0B',
+      },
+    ],
+  },
+  {
     version: '1.5.0',
     title: 'Visual Identity, Continuous Audio Mode & Navigation Resilience',
     date: 'November 2026',
-    isLatest: true,
     highlight:
       'Immerse in Ayara with refreshed Sunset Amethyst branding, continuous whole-surah recitation or single-verse focus mode, resilient deep navigation, and enhanced Ayat al-Kursi transliteration.',
     githubUrl: 'https://github.com/arafatmollah/Ayara/releases/tag/v1.5.0',

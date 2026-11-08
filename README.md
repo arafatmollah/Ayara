@@ -25,7 +25,7 @@ Get the latest APK release directly on your Android device:
 
 | Release | Download Link | Description |
 | :--- | :--- | :--- |
-| **Latest Android APK** | [**Download Ayara.apk (v1.5.0)**](https://github.com/arafatmollah/Ayara/releases/latest/download/Ayara.apk) | Direct standalone Android APK installable on all modern Android devices |
+| **Latest Android APK** | [**Download Ayara.apk (v1.5.1)**](https://github.com/arafatmollah/Ayara/releases/latest/download/Ayara.apk) | Direct standalone Android APK installable on all modern Android devices |
 | **All Releases & Notes** | [**GitHub Releases Archive**](https://github.com/arafatmollah/Ayara/releases) | Full changelog, release notes, and version history |
 | **Web Version** | [**Run in Web Browser**](http://localhost:8081) | Run locally with `npx expo start --web` |
 
